@@ -6,7 +6,7 @@
         "yiisoft/yii2": "2.0.4",
         "yiisoft/yii2-bootstrap": "2.0"
     },
-    "license": "http://www.4568113.com/license/",
+    "license": "MIT",
     "authors": [
         {
             "name": "dreamzml",
