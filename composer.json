@@ -3,8 +3,8 @@
     "description": "yii2 git publish test system",
     "type": "project",
     "require": {
-        "yiisoft/yii2": "2.0.4",
-        "yiisoft/yii2-bootstrap": "2.0"
+        "yiisoft/yii2": "*",
+        "yiisoft/yii2-bootstrap": "*"
     },
     "license": "MIT",
     "authors": [
@@ -13,5 +13,10 @@
             "email": "dream_zml@163.com"
         }
     ],
+    "autoload": {
+        "psr-4": {
+            "dreamzml\\SimpleGitPublish\\": ""
+        }
+    },
     "minimum-stability": "beta"
 }
