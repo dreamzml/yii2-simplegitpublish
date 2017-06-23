@@ -15,7 +15,7 @@ use yii\helpers\Html;
         <label class="pull-left">合并测试的分支</label>
     </div>
     <div class="col-md-10">
-        <ul class="pull-right">
+        <ul>
             <?php foreach ($mergeBranchs as $branch): ?>
                 <li class=""><?php if(YII_ENV_TEST && $isMaster) echo Html::a('编译合并到生产分支', 'JavaScript:;', ['branch'=>$branch, 'class'=>'btn badge btn-link push-btn btn-sm']) ?><?= $branch ?></li>
             <?php endforeach ?>

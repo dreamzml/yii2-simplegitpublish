@@ -1,0 +1,96 @@
+#result-box img {
+    -webkit-animation: rotate 3s infinite linear;
+    left: 50%;
+    position: absolute;
+    margin-left: -50px;
+}
+
+@-moz-keyframes rotate {
+    0% {
+        -moz-transform: rotate(0deg);
+    }
+    100% {
+        -moz-transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes rotate {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.wd60 {
+    display: block;
+    width: 80%;
+    float: left;
+    line-height: 40px;
+}
+
+.wd30 {
+    display: block;
+    width: 20%;
+    float: right;
+    line-height: 40px;
+    text-align: right;
+}
+
+.d_n {
+    display: none;
+}
+
+.clear {
+    clear: both;
+    overflow: hidden;
+}
+
+ul .badge {
+    float: right;
+    color: rgba(65, 67, 70, 0.45);
+}
+
+ul .badge:active, ul .badge:hover, ul .badge:link {
+    color: #0275d8;
+}
+
+.progress {
+    position: relative;
+    border-radius: .25rem;
+    overflow: initial;
+}
+
+.progress label {
+    position: absolute;
+    top: 20px;
+    margin-left: -40px;
+}
+
+.content-container {
+    padding-top: 70px;
+}
+
+.container pre {
+    clear:both;
+    border: none;
+    background-color: #eee;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+    margin-bottom: .5rem;
+}
+ul .badge{
+    background-color: transparent;
+}

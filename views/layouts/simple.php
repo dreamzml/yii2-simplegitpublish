@@ -6,7 +6,7 @@ use yii\helpers\Html;
 /* @var $this \yii\web\View */
 /* @var $content string */
 
-$asset = yii\gii\GiiAsset::register($this);
+$asset = \dreamzml\SimpleGitPublish\GitpublishAsset::register($this);
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -31,8 +31,8 @@ $asset = yii\gii\GiiAsset::register($this);
     echo Nav::widget([
                          'options' => ['class' => 'nav navbar-nav navbar-right'],
                          'items' => [
-                             ['label' => 'Help', 'url' => ['default/help']],
-                             ['label' => 'doc', 'url' => 'http://blog.4568113.com'],
+                             ['label' => 'Help', 'url' => ['#']],
+                             //['label' => 'doc', 'url' => 'http://blog.4568113.com'],
                          ],
                      ]);
     NavBar::end();

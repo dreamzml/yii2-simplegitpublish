@@ -11,7 +11,8 @@ use yii\web\Controller;
 class DefaultController extends Controller
 {
     public $layout = 'simple';
-    
+    //管理员
+    public $isMaster = true;
     //跳出CsrfToken验证
     public $enableCsrfValidation = false;
     
@@ -57,7 +58,7 @@ class DefaultController extends Controller
         $currentBranch = shell_exec(" cd $gitRoot && git symbolic-ref -q HEAD 2>&1");
         $currentBranch = str_replace('refs/heads/', 'origin/', $currentBranch);
         
-        return $this->renderPartial('index', [
+        return $this->render('index', [
             'remoteBranch'  => $remoteBranch,
             'currentBranch' => $currentBranch,
         ]);

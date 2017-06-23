@@ -18,13 +18,13 @@ use yii\helpers\Html;
                 <h2 class="wd60">wemall 当前分支：<span id="curr-branch"><?= $currentBranch ?></span></h2>
                   <span class="wd30">
                     <?= YII_ENV_TEST?"<测试环境>":(YII_ENV_PROD?"<生产环境>":"<开发环境>") ?>
-                    <?php if(YII_ENV_TEST || YII_ENV_DEV) echo Html::a('git status', ['git-status'], ['role'=>'button', 'class'=>'btn btn-default ajax-btn']) ?>
+                    <?php if(YII_ENV_TEST || YII_ENV_DEV) echo Html::a('git status', ['git-status'], ['role'=>'button', 'class'=>'btn btn-link ajax-btn']) ?>
                   </span>
                 </div>
                 <hr>
                 <div id="union-branch"></div>
                 <?php if(YII_ENV_PROD): ?>
-                <div class="btn-group btn-group-justified" role="group" aria-label="Justified button group with nested dropdown">
+                <div class="btn-group" role="group" aria-label="btn-group">
                     <?= Html::a('更新代码', ['sync'], ['role'=>'button', 'class'=>'btn btn-default ajax-btn']) ?>
                     <?php if(YII_ENV_TEST || YII_ENV_DEV) echo Html::a('git status', ['git-status'], ['role'=>'button', 'class'=>'btn btn-default ajax-btn']) ?>
                     <?php if(YII_ENV_TEST || YII_ENV_DEV) echo Html::a('webpack', ['webpack'], ['role'=>'button', 'class'=>'btn btn-default ajax-btn']) ?>
