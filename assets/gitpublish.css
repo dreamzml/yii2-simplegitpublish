@@ -1,8 +1,11 @@
-#result-box img {
+#result-box .loading {
     -webkit-animation: rotate 3s infinite linear;
     left: 50%;
     position: absolute;
     margin-left: -50px;
+    background-image: url(loading.png);
+    width: 100px;
+    height: 100px;
 }
 
 @-moz-keyframes rotate {

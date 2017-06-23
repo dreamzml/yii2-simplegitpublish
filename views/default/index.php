@@ -3,7 +3,7 @@
  * @Author: 16020028
  * @Date:   2017-03-27 15:39:40
  * @Last Modified by:   16020028
- * @Last Modified time: 2017-05-26 16:42:45
+ * @Last Modified time: 2017-06-23 15:31:15
  */
 
 use yii\helpers\Url;
@@ -111,7 +111,7 @@ use yii\helpers\Html;
                 type: "GET",
                 url: href,
                 beforeSend:function(){
-                $('#result-box').html('<img src="img/icon/loading.png"/>');
+                  $('#result-box').html('<div class="loading"></div>');
                 },
                 success: function(result){
                     $('#result-box').html(result);
@@ -133,7 +133,7 @@ use yii\helpers\Html;
                 type: "GET",
                 url: '/githook/reset?branch='+branch,
                 beforeSend:function(){
-                    $('#result-box').html('<img src="img/icon/loading.png"/>');
+                  $('#result-box').html('<div class="loading"></div>');
                 },
                 success: function(result){
                     $('#result-box').html(result);
@@ -174,7 +174,7 @@ use yii\helpers\Html;
                   type: "GET",
                   url: '/githook/sync?branch='+_this.branch,
                   beforeSend:function(){
-                    $('#result-box').html('<img src="img/icon/loading.png"/>');
+                    $('#result-box').html('<div class="loading"></div>');
                     setProgress('prepgress-merge', 35);
                   },
                   success: function(result){
@@ -279,7 +279,7 @@ use yii\helpers\Html;
                 // async: false,
                 url: '/githook/reset?branch='+_this.prodBranch,
                 beforeSend:function(){
-                    $('#result-box').html('<img src="img/icon/loading.png"/>');
+                  $('#result-box').html('<div class="loading"></div>');
                 },
                 success: function(result){
                     $('#result-box').html(result);
@@ -380,7 +380,7 @@ use yii\helpers\Html;
             mergeMasterToTest:function(){
               var _this = this;
               setProgress('prepgress-push', 80);
-  
+
               $.ajax({
                 type: "GET",
                 //async: false,
