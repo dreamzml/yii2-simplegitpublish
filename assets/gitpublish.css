@@ -94,3 +94,6 @@ h1, h2, h3, h4, h5, h6 {
 ul .badge{
     background-color: transparent;
 }
+.navbar-inverse a.navbar-brand {
+    color: #90cc20;
+}
