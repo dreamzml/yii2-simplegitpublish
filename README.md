@@ -18,13 +18,13 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run
 
 ```
-php composer.phar require --dev --prefer-dist dreamzml/yii2-gii
+php composer.phar require dreamzml/yii2-simplegitpublish
 ```
 
 or add
 
 ```
-"dreamzml/yii2-gii": "*"
+"dreamzml/yii2-simplegitpublish": "*"
 ```
 
 to the require-dev section of your `composer.json` file.
