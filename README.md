@@ -37,7 +37,6 @@ Once the extension is installed, simply modify your application configuration as
 
 ```php
 return [
-    'bootstrap' => ['gii'],
     'modules' => [
         'gitpublish' => [
             'class' => 'dreamzml\SimpleGitPublish\Module'
