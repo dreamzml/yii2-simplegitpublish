@@ -8,8 +8,12 @@ use yii\base\BootstrapInterface;
 /**
  * simplegitpublish module definition class
  */
-class Module extends \yii\base\Module implements BootstrapInterface
+class Module extends \yii\base\Module
 {
+    public $allowedIPs = ['127.0.0.1', '::1'];
+    
+    public $monitors = ['admin'=>'123456'];
+    
     /**
      * @inheritdoc
      */
@@ -31,12 +35,57 @@ class Module extends \yii\base\Module implements BootstrapInterface
     /**
      * @inheritdoc
      */
-    public function bootstrap($app)
+    public function beforeAction($action)
     {
-        $app->getUrlManager()->addRules([
-                ['class' => 'yii\web\UrlRule', 'pattern' => $this->id, 'route' => $this->id . '/default/index'],
-                ['class' => 'yii\web\UrlRule', 'pattern' => $this->id . '/<id:\w+>', 'route' => $this->id . '/default/view'],
-                ['class' => 'yii\web\UrlRule', 'pattern' => $this->id . '/<controller:[\w\-]+>/<action:[\w\-]+>', 'route' => $this->id . '/<controller>/<action>'],
-            ], false);
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+        
+        if (Yii::$app instanceof \yii\web\Application && !$this->checkAccess()) {
+            throw new ForbiddenHttpException('You are not allowed to access this page.');
+        }
+        
+        if (!$this->checkAuthor()) {
+            Header("WWW-Authenticate: Basic realm=\"MEMC Login\"");
+            Header("HTTP/1.0 401 Unauthorized");
+            echo "<html><body><h1>Rejected!</h1><big>Wrong Username or Password!</big></body></html>";
+            exit;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * @return int whether the module can be accessed by the current user
+     */
+    protected function checkAccess()
+    {
+        $ip = Yii::$app->getRequest()->getUserIP();
+        foreach ($this->allowedIPs as $filter) {
+            if ($filter === '*' || $filter === $ip || (($pos = strpos($filter, '*')) !== false && !strncmp($ip, $filter, $pos))) {
+                return true;
+            }
+        }
+        Yii::warning('Access to Gii is denied due to IP address restriction. The requested IP is ' . $ip, __METHOD__);
+        
+        return false;
+    }
+    /**
+     * 验证防客权限
+     * @param $user
+     * @param $password
+     *
+     * @return bool
+     */
+    public function checkAuthor(){
+        if($this->monitors==='*')
+            return true;
+        
+        if(!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']))
+            return false;
+        
+        $user = $_SERVER['PHP_AUTH_USER'];
+        $password = $_SERVER['PHP_AUTH_PW'];
+        return $this->monitors[$user] && $this->monitors[$user]==$password;
     }
 }

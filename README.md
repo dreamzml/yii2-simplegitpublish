@@ -39,7 +39,9 @@ Once the extension is installed, simply modify your application configuration as
 return [
     'modules' => [
         'gitpublish' => [
-            'class' => 'dreamzml\SimpleGitPublish\Module'
+            'class' => 'dreamzml\SimpleGitPublish\Module',            
+            'allowedIPs' => ['127.0.0.1', '::1'],          // if set ['*'] allow all ip
+            'monitors'   => ['admin'=>'123456'],           //allow users, if set * allow all user
         ],
     ],
     // ...
