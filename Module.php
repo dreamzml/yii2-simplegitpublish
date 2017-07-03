@@ -86,6 +86,6 @@ class Module extends \yii\base\Module
         
         $user = $_SERVER['PHP_AUTH_USER'];
         $password = $_SERVER['PHP_AUTH_PW'];
-        return $this->monitors[$user] && $this->monitors[$user]==$password;
+        return isset($this->monitors[$user]) && $this->monitors[$user]==$password;
     }
 }

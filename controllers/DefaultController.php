@@ -12,7 +12,7 @@ class DefaultController extends Controller
 {
     public $layout = 'simple';
     //管理员
-    public $isMaster = true;
+    public $isMaster = false;
     //跳出CsrfToken验证
     public $enableCsrfValidation = false;
     
@@ -21,19 +21,9 @@ class DefaultController extends Controller
         if ($res === false) {
             return false;
         }
-        
-        //if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) || (
-        //        !($_SERVER['PHP_AUTH_USER'] == "TESTER" && $_SERVER['PHP_AUTH_PW'] == Yii::$app->params['memc_secret_tester'])
-        //        && !($_SERVER['PHP_AUTH_USER'] == "MASTER" && $_SERVER['PHP_AUTH_PW'] == Yii::$app->params['memc_secret_master'])
-        //    )
-        //) {
-        //    Header("WWW-Authenticate: Basic realm=\"MEMC Login\"");
-        //    Header("HTTP/1.0 401 Unauthorized");
-        //    echo "<html><body><h1>Rejected!</h1><big>Wrong Username or Password!</big></body></html>";
-        //    exit;
-        //}
-        
-        //$this->isMaster = $_SERVER['PHP_AUTH_USER'] == "MASTER";
+
+        $curModules = current(Yii::$app->getModules());
+        $this->isMaster = $curModules->monitors=='*' || $_SERVER['PHP_AUTH_USER'] == "MASTER";
         return true;
     }
     
