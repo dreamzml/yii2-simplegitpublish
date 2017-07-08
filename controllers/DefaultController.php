@@ -22,7 +22,7 @@ class DefaultController extends Controller
             return false;
         }
 
-        $this->isMaster = $this->modeule->monitors=='*' || $_SERVER['PHP_AUTH_USER'] == "MASTER";
+        $this->isMaster = $this->module->monitors=='*' || $_SERVER['PHP_AUTH_USER'] == "MASTER";
         return true;
     }
     
