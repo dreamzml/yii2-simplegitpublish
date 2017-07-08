@@ -22,8 +22,7 @@ class DefaultController extends Controller
             return false;
         }
 
-        $curModules = current(Yii::$app->getModules());
-        $this->isMaster = $curModules->monitors=='*' || $_SERVER['PHP_AUTH_USER'] == "MASTER";
+        $this->isMaster = $this->modeule->monitors=='*' || $_SERVER['PHP_AUTH_USER'] == "MASTER";
         return true;
     }
     

@@ -13,7 +13,7 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run
 
 ```
-php composer.phar require dreamzml/yii2-simplegitpublish
+php composer.phar require dreamzml/yii2-simplegitpublish --prefer-dist
 ```
 
 or add
