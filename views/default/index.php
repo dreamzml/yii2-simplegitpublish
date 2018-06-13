@@ -131,7 +131,7 @@ use yii\helpers\Html;
             }
             $.ajax({
                 type: "GET",
-                url: '/githook/reset?branch='+branch,
+                url: '<?= Url::to(["reset"]) ?>?branch='+branch,
                 beforeSend:function(){
                   $('#result-box').html('<div class="loading"></div>');
                 },
@@ -172,7 +172,7 @@ use yii\helpers\Html;
               var _this = this;
               $.ajax({
                   type: "GET",
-                  url: '/githook/sync?branch='+_this.branch,
+                  url: '<?= Url::to(["sync"]) ?>?branch='+_this.branch,
                   beforeSend:function(){
                     $('#result-box').html('<div class="loading"></div>');
                     setProgress('prepgress-merge', 35);
@@ -192,7 +192,7 @@ use yii\helpers\Html;
               var _this = this;
               $.ajax({
                   type: "GET",
-                  url: '/githook/webpack',
+                  url: '<?= Url::to(["webpack"]) ?>',
                   beforeSend:function(){
                     setProgress('prepgress-merge', 70);
                   },
@@ -277,7 +277,7 @@ use yii\helpers\Html;
               $.ajax({
                 type: "GET",
                 // async: false,
-                url: '/githook/reset?branch='+_this.prodBranch,
+                url: '<?= Url::to(["reset"]) ?>?branch='+_this.prodBranch,
                 beforeSend:function(){
                   $('#result-box').html('<div class="loading"></div>');
                 },
@@ -298,7 +298,7 @@ use yii\helpers\Html;
               $.ajax({
                 type: "GET",
                 //async: false,
-                url: '/githook/sync?branch='+_this.branch,
+                url: '<?= Url::to(["sync"]) ?>?branch='+_this.branch,
                 success: function(result){
                     $('#result-box').append(result);
                       _this.webpackProdBranch();
@@ -315,7 +315,7 @@ use yii\helpers\Html;
               $.ajax({
                 type: "GET",
                 //async: false,
-                url: '/githook/webpack',
+                url: '<?= Url::to(["webpack"]) ?>',
                 success: function(result){
                     $('#result-box').append(result);
                       _this.gulpProdBranch();
@@ -332,7 +332,7 @@ use yii\helpers\Html;
               $.ajax({
                   type: "GET",
                   //async: false,
-                  url:  '/githook/gulp',
+                  url:  '<?= Url::to(["gulp"]) ?>',
                   success: function(result){
                       $('#result-box').append(result);
                       _this.pushProdBranch();
@@ -349,7 +349,7 @@ use yii\helpers\Html;
               $.ajax({
                   type: "GET",
                   //async: false,
-                  url: '/githook/gulp-push?branch='+_this.prodBranch,
+                  url: '<?= Url::to(["gulp-push"]) ?>?branch='+_this.prodBranch,
                   success: function(result){
                       $('#result-box').append(result);
                       _this.checkoutTestBranch( );
@@ -366,7 +366,7 @@ use yii\helpers\Html;
               $.ajax({
                   type: "GET",
                   //async: false,
-                  url: '/githook/reset?branch='+_this.currbranch,
+                  url: '<?= Url::to(["reset"]) ?>?branch='+_this.currbranch,
                   success: function(result){
                       $('#result-box').append(result);
                       _this.mergeMasterToTest();
@@ -384,7 +384,7 @@ use yii\helpers\Html;
               $.ajax({
                 type: "GET",
                 //async: false,
-                url: '/githook/sync?branch='+_this.prodBranch,
+                url: '<?= Url::to(["sync"]) ?>?branch='+_this.prodBranch,
                 success: function(result){
                   $('#result-box').append(result);
                   _this.pushTestBranch();
@@ -401,7 +401,7 @@ use yii\helpers\Html;
               $.ajax({
                 type: "GET",
                 //async: false,
-                url: '/githook/gulp-push?branch='+_this.currbranch,
+                url: '<?= Url::to(["gulp-push"]) ?>?branch='+_this.currbranch,
                 success: function(result){
                   $('#result-box').append(result);
                   _this.mergeTestBranch();
@@ -424,7 +424,7 @@ use yii\helpers\Html;
               $.ajax({
                   type: "GET",
                   //async: false,
-                  url: '/githook/sync?branch='+tBranch,
+                  url: '<?= Url::to(["sync"]) ?>?branch='+tBranch,
                   success: function(result){
                       $('#result-box').append(result);
                       _this.mergeTestBranch();
@@ -441,7 +441,7 @@ use yii\helpers\Html;
               $.ajax({
                   type: "GET",
                   //async: false,
-                  url: '/githook/webpack',
+                  url: '<?= Url::to(["webpack"]) ?>',
                   success: function(result){
                       $('#result-box').append(result);
                       _this.success();
