@@ -277,7 +277,11 @@ class DefaultController extends Controller
     public static function getGitBootPath() {
         $baseDir = Yii::$app->getBasePath();
 
-        $gitRoot = dirname($baseDir);
+        if(is_dir($baseDir.'/.git')){
+            $gitRoot = $baseDir;
+        }else{
+            $gitRoot = dirname($baseDir);
+        }
 
         return $gitRoot;
     }
