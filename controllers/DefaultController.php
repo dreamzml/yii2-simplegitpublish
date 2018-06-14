@@ -54,7 +54,7 @@ class DefaultController extends Controller
         //获取当前分支
         $currentBranch = $this->getCurrentBranch();
 
-        return $this->renderPartial('index', [
+        return $this->render('index', [
             'remoteBranch'  => $remoteBranch,
             'currentBranch' => $currentBranch,
             'masterRemote' => $this->masterRemote,
