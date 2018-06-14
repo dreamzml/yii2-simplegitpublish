@@ -13,6 +13,11 @@ class DefaultController extends Controller
     public $layout = 'simple';
     //管理员
     public $isMaster = false;
+
+    //主分支仓库
+    public $masterRemote = 'awsGitlab';
+    public $masterBranch = 'yimi_wechatmall';
+
     //跳出CsrfToken验证
     public $enableCsrfValidation = false;
     
@@ -31,25 +36,27 @@ class DefaultController extends Controller
      * @return [type] [description]
      */
     public function actionIndex() {
-
         $gitRoot = self::getGitBootPath();
-        //获取所有分支
-        $branchs      = shell_exec(" cd $gitRoot && git fetch && git branch -r 2>&1");
 
+        //获取所有分支
+        shell_exec(" cd $gitRoot && git fetch --all 2>&1");
+        $branchs      = shell_exec(" cd $gitRoot && git branch  -r 2>&1");
         $branchs      = explode("\n", rtrim($branchs));
         $remoteBranch = [];
         foreach ($branchs as $branch) {
-            if (strpos($branch, 'origin/HEAD') === false) {
+            if (strpos($branch, '/HEAD') === false) {
                 $remoteBranch[] = trim($branch);
             }
         }
+
         //获取当前分支
-        $currentBranch = shell_exec(" cd $gitRoot && git symbolic-ref -q HEAD 2>&1");
-        $currentBranch = str_replace('refs/heads/', 'origin/', $currentBranch);
-        
-        return $this->render('index', [
+        $currentBranch = $this->getCurrentBranch();
+
+        return $this->renderPartial('index', [
             'remoteBranch'  => $remoteBranch,
             'currentBranch' => $currentBranch,
+            'masterRemote' => $this->masterRemote,
+            'masterBranch' => $this->masterBranch,
         ]);
     }
     
@@ -76,6 +83,7 @@ class DefaultController extends Controller
     
     /**
      * 更新git
+     * 默认更新主分支
      * @return [type] [description]
      */
     public function actionSync() {
@@ -90,21 +98,19 @@ class DefaultController extends Controller
         //git项目地址
         $gitRoot = self::getGitBootPath();
         
-        $oriBranch = Yii::$app->request->get('branch');
+        $oriBranch = Yii::$app->request->get('branch', "{$this->masterRemote}/{$this->masterBranch}");
         $branch    = str_replace('/', ' ', $oriBranch);
         $shell     = "cd $gitRoot && git pull {$branch} 2>&1";
         $strout    = "<span class='text-warning'># {$shell}</span> \n";
         $outPutCmd = shell_exec($shell);
         $strout    .= $outPutCmd;
-        
+
+        //获取当前分支
+        $currentBranch =  $this->getCurrentBranch();
         
         $mergeBranchs = Yii::$app->cache->get('merge_branchs');
         if (!YII_ENV_PROD) {
-            
-            //获取当前分支
-            $currentBranch = shell_exec(" cd $gitRoot && git symbolic-ref -q HEAD 2>&1");
-            $currentBranch = str_replace('refs/heads/', 'origin/', $currentBranch);
-            
+
             //合并有文件冲突
             if (strpos($outPutCmd, 'Automatic merge failed;') !== false) {
                 Yii::$app->response->setStatusCode(424);
@@ -113,7 +119,7 @@ class DefaultController extends Controller
                 $strout     .= "\n\n<span class='text-warning'>***************************************************************\n******     合并失败， 文件冲突，请解决冲突后再合并测试       ******\n***************************************************************\n</span>";
                 $branchName = explode('/', $currentBranch);
                 $branchName = $branchName[1] ?? $currentBranch;
-                $shell      = "cd $gitRoot && git reset --hard {$currentBranch} && git checkout . && git checkout {$branchName} && git reset --hard {$currentBranch} && git pull 2>&1";
+                $shell      = "cd $gitRoot && git reset --hard {$currentBranch} &&  git pull {$branchName[0]} {$branchName[1]} 2>&1";
                 shell_exec($shell);
                 foreach ($mergeBranchs as $key => $mBranch) {
                     $mBranch = str_replace('/', ' ', $mBranch);
@@ -125,11 +131,11 @@ class DefaultController extends Controller
                     $shell = "cd $gitRoot && git pull {$mBranch} 2>&1";
                     shell_exec($shell);
                 }
-            } elseif ($currentBranch != $oriBranch && $oriBranch != 'origin/master' && !empty($oriBranch)) {
+            } elseif ($currentBranch != $oriBranch && $oriBranch != $this->masterRemote.'/'.$this->masterBranch && !empty($oriBranch)) {
                 $mergeBranchs[] = $oriBranch;
                 $mergeBranchs   = array_unique($mergeBranchs);
             }
-            
+            sort($mergeBranchs);
             Yii::$app->cache->set('merge_branchs', $mergeBranchs);
         }
         
@@ -154,15 +160,28 @@ class DefaultController extends Controller
         
         //git项目地址
         $gitRoot = self::getGitBootPath();
-        
+
+        //获取当前分支
+        $currentBranch = $this->getCurrentBranch();
+
         $branch = Yii::$app->request->get('branch');
         Yii::$app->cache->delete('merge_branchs');
         
         $branchName = explode('/', $branch);
-        $branchName = $branchName[1] ?? $branch;
-        
-        $shell = "cd $gitRoot && git checkout . && git checkout {$branchName} && git reset --hard {$branch} && git pull 2>&1";
-        
+
+        $realBranch = $branchName[1];
+
+        if($currentBranch == $branch){
+            //重置当前分支
+            $shell = "cd $gitRoot && git reset --hard {$branch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
+        }else{
+            //设置当前的remote
+            Yii::$app->cache->set('currentMasterRemote', $branchName[0]);
+            //删除已存在的本地分支
+            shell_exec(" cd $gitRoot &&  git branch -D {$realBranch} 2>&1");
+            $shell = "cd $gitRoot && git fetch --all && git checkout -b {$realBranch} {$branch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
+        }
+
         $strout = "<span class='text-warning'># {$shell}</span> \n";
         $strout .= shell_exec($shell);
         
@@ -181,7 +200,7 @@ class DefaultController extends Controller
         set_time_limit(0);
         
         //如果无jsx改动跳过
-        if (!self::modifieldIncloudJsx() && $force != 'true') {
+        if (!$this->modifieldIncloudJsx() && $force != 'true') {
             return "<pre><span class='text-warning'># </span><span class='text-muted'>modified file not incloud jsx, skip webpack</span> \n</pre>";
         }
         
@@ -190,9 +209,9 @@ class DefaultController extends Controller
         
         //git项目地址
         $gitRoot = self::getGitBootPath();
-        $wwwRoot = "$gitRoot/wemall/web";
+        $wwwRoot = "$gitRoot{$this->module->nodeBasePath}";
         
-        $shell = "cd $wwwRoot && webpack 2>&1";
+        $shell = "cd $wwwRoot && rm -rf js/* && webpack 2>&1";
         
         $strout = "<span class='text-warning'># {$shell}</span> \n";
         $strout .= shell_exec($shell);
@@ -211,7 +230,7 @@ class DefaultController extends Controller
         set_time_limit(0);
         
         //如果无jsx改动跳过
-        if (!self::modifieldIncloudJsx() && $force != 'true') {
+        if (!$this->modifieldIncloudJsx() && $force != 'true') {
             return "<pre><span class='text-warning'># </span><span class='text-muted'>modified file not incloud jsx, skip guip</span> \n</pre>";
         }
         
@@ -220,7 +239,7 @@ class DefaultController extends Controller
         
         //git项目地址
         $gitRoot = self::getGitBootPath();
-        $wwwRoot = "$gitRoot/wemall/web";
+        $wwwRoot = "$gitRoot{$this->module->nodeBasePath}";
         
         $shell = "cd $wwwRoot && gulp script 2>&1";
         
@@ -243,13 +262,15 @@ class DefaultController extends Controller
         $branch = str_replace('/', ' ', $branch);
         //写入日志
         yii::info("git push branch {$branch} run star", 'githook');
-        
+
         //git项目地址
-        $dir        = realpath(__DIR__);
-        $dir        = $dir.'/../../console/sh';
-        $www_folder = realpath($dir);
-        
-        $shell = "cd $www_folder && sh codeJsgPush.sh \"{$branch}\" 2>&1";
+        $gitRoot = self::getGitBootPath();
+
+        $status = shell_exec("cd $gitRoot && git status 2>&1");
+        $changes = strpos($status, "nothing to commit") === false;
+        $addCmd = $changes ? " git add wemall/web/jsg/* && git add -A && git commit -am \"update gulp js file\" &&" : "";
+
+        $shell = "cd $gitRoot && {$addCmd} git push $branch 2>&1";
         
         $strout = "<span class='text-warning'># {$shell}</span> \n";
         $strout .= shell_exec($shell);
@@ -285,16 +306,30 @@ class DefaultController extends Controller
 
         return $gitRoot;
     }
-    
+
+    /**
+     * 获取当前分支
+     * @return [type] [description]
+     */
+    public function getCurrentBranch() {
+        $gitRoot = $this->getGitBootPath();
+
+        $masterRemote = Yii::$app->cache->get('currentMasterRemote');
+        $masterRemote = empty($masterRemote)? $this->masterRemote : $masterRemote;
+
+        return  $masterRemote.'/'.trim(shell_exec(" cd $gitRoot && git symbolic-ref --short -q HEAD 2>&1"));
+    }
+
     /**
      * 判断未commit的文件中是否有jsx文件改动
      * @return [type] [description]
      */
-    public static function modifieldIncloudJsx() {
+    public function modifieldIncloudJsx() {
         //git项目地址
         $gitRoot = self::getGitBootPath();
-        
-        $commitIds = shell_exec("cd $gitRoot && git cherry -v 2>&1");
+        $masterBranch = $this->masterRemote.'/'.$this->masterBranch;
+
+        $commitIds = shell_exec("cd $gitRoot && git cherry -v $masterBranch 2>&1");
         $commitIds = explode("\n", rtrim($commitIds));
         foreach ($commitIds as $commit) {
             $commit = explode(' ', $commit);

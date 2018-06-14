@@ -250,7 +250,7 @@ use yii\helpers\Html;
             branch:'',
             currbranch: '',
             currTestBranch:[],
-            prodBranch:'origin/yimi_wechatmall',
+            prodBranch:'<?= $masterRemote ?>/<?= $masterBranch ?>',
             scrollTop: function(){
                 $('#result-box').scrollTop($('#result-box').prop("scrollHeight"));
             },
