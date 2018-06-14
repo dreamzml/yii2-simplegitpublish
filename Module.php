@@ -15,6 +15,8 @@ class Module extends \yii\base\Module
     public $monitors = ['admin'=>'123456'];
 
     public $nodeBasePath = '/wemall/web';
+    public $masterRemote = 'origin';
+    public $masterBranch = 'master';
 
     /**
      * @inheritdoc

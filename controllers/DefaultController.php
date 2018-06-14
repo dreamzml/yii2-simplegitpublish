@@ -28,6 +28,8 @@ class DefaultController extends Controller
         }
 
         $this->isMaster = $this->module->monitors=='*' || $_SERVER['PHP_AUTH_USER'] == "MASTER";
+        $this->masterRemote = $this->module->masterRemote;
+        $this->masterBranch = $this->module->masterBranch;
         return true;
     }
     
