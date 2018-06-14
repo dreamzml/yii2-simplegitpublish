@@ -4,6 +4,7 @@ namespace dreamzml\SimpleGitPublish;
 
 use Yii;
 use yii\base\BootstrapInterface;
+use yii\web\Response;
 
 /**
  * simplegitpublish module definition class
@@ -34,6 +35,8 @@ class Module extends \yii\base\Module
         $packDir = dirname(__DIR__);
         Yii::setAlias('@dreamzml', $packDir);
         // custom initialization code goes here
+
+        Yii::$app->response->format = Response::FORMAT_HTML;
     }
     
     /**
