@@ -18,6 +18,8 @@ class Module extends \yii\base\Module
     public $masterBranch = 'master';
     public $subGitPath = null;
     public $compilePath = '/wemall/web/jsg';
+    public $compileWebpackCmd = 'webpack';
+    public $compileGulpCmd = 'gulp script';
 
     /**
      * @inheritdoc

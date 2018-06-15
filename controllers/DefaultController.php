@@ -204,7 +204,7 @@ class DefaultController extends Controller
         set_time_limit(0);
         
         //如果无jsx改动跳过
-        if (!$this->modifieldIncloudJsx() && $force != 'true') {
+        if (!$this->modifieldIncloudJsx() && $force != 'true' || empty($this->module->compilePath)) {
             return "<pre><span class='text-warning'># </span><span class='text-muted'>modified file not incloud jsx, skip webpack</span> \n</pre>";
         }
         
@@ -215,7 +215,7 @@ class DefaultController extends Controller
         $gitRoot = self::getGitBootPath();
         $wwwRoot = "$gitRoot{$this->module->nodeBasePath}";
         
-        $shell = "cd $wwwRoot && rm -rf js/* && webpack 2>&1";
+        $shell = "cd $wwwRoot && rm -rf $gitRoot{$this->module->compilePath}/* && {$this->module->compileWebpackCmd} 2>&1";
         
         $strout = "<span class='text-warning'># {$shell}</span> \n";
         $strout .= shell_exec($shell);
@@ -234,7 +234,7 @@ class DefaultController extends Controller
         set_time_limit(0);
         
         //如果无jsx改动跳过
-        if (!$this->modifieldIncloudJsx() && $force != 'true') {
+        if (!$this->modifieldIncloudJsx() && $force != 'true' || empty($this->module->compilePath) || empty($this->module->compileGulpCmd)) {
             return "<pre><span class='text-warning'># </span><span class='text-muted'>modified file not incloud jsx, skip guip</span> \n</pre>";
         }
         
@@ -245,7 +245,7 @@ class DefaultController extends Controller
         $gitRoot = self::getGitBootPath();
         $wwwRoot = "$gitRoot{$this->module->nodeBasePath}";
         
-        $shell = "cd $wwwRoot && gulp script 2>&1";
+        $shell = "cd $wwwRoot && {$this->module->compileGulpCmd} 2>&1";
         
         $strout = "<span class='text-warning'># {$shell}</span> \n";
         $strout .= shell_exec($shell);
@@ -272,9 +272,13 @@ class DefaultController extends Controller
 
         $status = shell_exec("cd $gitRoot && git status 2>&1");
         $changes = strpos($status, "nothing to commit") === false;
-        $addCmd = $changes ? " git add wemall/web/jsg/* && git add -A && git commit -am \"update gulp js file\" &&" : "";
+        $status = shell_exec("cd $gitRoot{$this->module->subGitPath} && git status 2>&1");
+        $changes = $changes || (strpos($status, "nothing to commit") === false);
 
-        $shell = "cd $gitRoot && {$addCmd} git push $branch 2>&1";
+
+        $addCmd = $changes && !empty($this->module->compilePath) ? " cd $gitRoot{$this->module->compilePath} git add * && git add -A && git commit -am \"update gulp js file\" &&" : "";
+
+        $shell = " {$addCmd} cd $gitRoot && git push $branch 2>&1";
         
         $strout = "<span class='text-warning'># {$shell}</span> \n";
         $strout .= shell_exec($shell);
