@@ -447,5 +447,6 @@ class DefaultController extends Controller
                 $subRemoteBranch[] = trim($branch);
             }
         }
+        return $subRemoteBranch;
     }
 }
