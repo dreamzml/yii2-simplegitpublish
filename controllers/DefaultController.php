@@ -269,7 +269,7 @@ class DefaultController extends Controller
 
         //git项目地址
         $gitRoot = self::getGitBootPath();
-        $strout = '<span class=\'text-warning\'>### push cmd ###</span> \n';
+        $strout = "<span class=\'text-warning\'>### push cmd ###</span> \n\n";
 
         $shell = "cd $gitRoot && git status 2>&1";
         $status = shell_exec($shell);
