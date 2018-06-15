@@ -44,6 +44,13 @@ use yii\helpers\Html;
                     <datalist id="companys">
                       <?php foreach ($remoteBranch as $branch) echo Html::tag('option', '', ['value'=>$branch]);  ?>
                     </datalist>
+                    <?php if(!empty($subGitPath)){ ?>
+                      <?= Html::input('text', 'subbranch',  '', ['list'=>'companys', 'class'=>'form-control', 'placeholder'=>'请输入分支名称', 'id'=>'input-branch']) ?>
+                    <datalist id="companys">
+                        <?php foreach ($subRemoteBranch as $branch) echo Html::tag('option', '', ['value'=>$branch]);  ?>
+                    </datalist>
+                    <?php } ?>
+
                     <span class="input-group-btn">
                       <button class="btn btn-default" id="margeBranch" type="button">合并分支到当前环境!</button>
                     </span>
