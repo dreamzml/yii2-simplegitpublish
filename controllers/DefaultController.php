@@ -163,7 +163,7 @@ class DefaultController extends Controller
                     shell_exec($shell);
                 }
             } elseif ($currentBranch != $oriBranch && $oriBranch != $this->masterRemote.'/'.$this->masterBranch && !empty($oriBranch)) {
-                $mergeBranchs[] = $oriBranch;
+                $mergeBranchs[] = empty($this->module->subGitPath)? $oriBranch :  "{$oriBranch}---[separator]---{$subBranch}";
                 $mergeBranchs   = array_unique($mergeBranchs);
             }
 
