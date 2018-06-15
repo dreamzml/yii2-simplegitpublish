@@ -137,7 +137,9 @@ class DefaultController extends Controller
                 $mergeBranchs[] = $oriBranch;
                 $mergeBranchs   = array_unique($mergeBranchs);
             }
-            sort($mergeBranchs);
+
+            $mergeBranchs && sort($mergeBranchs);
+
             Yii::$app->cache->set('merge_branchs', $mergeBranchs);
         }
         
