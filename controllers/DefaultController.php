@@ -269,26 +269,25 @@ class DefaultController extends Controller
 
         //git项目地址
         $gitRoot = self::getGitBootPath();
-        $strout = "<span class=\'text-warning\'>### push cmd ###</span> \n\n";
+        $strout = "<span class='text-warning'>### push cmd ###</span> \n\n";
 
         $shell = "cd $gitRoot && git status 2>&1";
         $status = shell_exec($shell);
         $changes = strpos($status, "nothing to commit") === false;
         $strout .= "<span class='text-warning'># {$shell}</span> \n";
-        $strout .= $changes;
+        $strout .= $status;
 
         $shell = "cd $gitRoot{$this->module->subGitPath} && git status 2>&1";
         $status = shell_exec($shell);
         $changes = $changes || (strpos($status, "nothing to commit") === false);
-        $strout .= "<span class='text-warning'># {$shell}</span> \n";
-        $strout .= $changes;
+        $strout .= "\n<span class='text-warning'># {$shell}</span> \n";
+        $strout .= $status;
 
 
         $addCmd = $changes && !empty($this->module->compilePath) ? " cd $gitRoot{$this->module->compilePath} git add * && git add -A && git commit -am \"update gulp js file\" &&" : "";
 
-        $shell .= " {$addCmd} cd $gitRoot && git push $branch 2>&1";
-        
-        $strout .= "<span class='text-warning'># {$shell}</span> \n";
+        $shell = " {$addCmd} cd $gitRoot && git push $branch 2>&1";
+        $strout .= "\n<span class='text-warning'># {$shell}</span> \n";
         $strout .= shell_exec($shell);
         
         return "<pre>$strout</pre>";
