@@ -16,7 +16,7 @@ use yii\helpers\Html;
             <div class="alert alert-warning">
                 <div class="clearfix">
                 <h2 class="wd60"><?= Yii::$app->name ?> 当前分支：<span id="curr-branch"><?= $currentBranch ?></span>
-                    <?php  if(!empty($subGitPath)) echo "<smal>$subRemoteBranch</smal>" ?>
+                    <?php  if(!empty($subGitPath)) echo "<smal>$currentSubBranch</smal>"; ?>
                 </h2>
                   <span class="wd30">
                     <?= YII_ENV_TEST?"<测试环境>":(YII_ENV_PROD?"<生产环境>":"<开发环境>") ?>
