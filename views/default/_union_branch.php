@@ -17,8 +17,13 @@ use yii\helpers\Html;
     <div class="col-md-10">
         <ul>
             <?php foreach ($mergeBranchs as $branch): ?>
-                <li class=""><?php if(YII_ENV_TEST && $isMaster) echo Html::a('编译合并到生产分支', 'JavaScript:;', ['branch'=>$branch, 'class'=>'btn badge btn-link push-btn btn-sm']) ?><?= $branch ?></li>
-            <?php endforeach ?>
+                <?php if(strpos($branch, '---[separator]---')===false){ ?>
+                    <li class=""><?php if(YII_ENV_TEST && $isMaster) echo Html::a('编译合并到生产分支', 'JavaScript:;', ['branch'=>$branch, 'class'=>'btn badge btn-link push-btn btn-sm']) ?><?= $branch ?></li>
+                <?php }else{ ?>
+                    <?php list($oriBranch, $subBranch) = explode($branch, '---[separator]---')  ?>
+                    <li class=""><?php if(YII_ENV_TEST && $isMaster) echo Html::a('编译合并到生产分支', 'JavaScript:;', ['branch'=>$branch, 'subBranch'=>$subBranch, 'class'=>'btn badge btn-link push-btn btn-sm']) ?><?= "$oriBranch  ------ $subBranch" ?></li>
+                <?php } ?>
+          <?php endforeach ?>
         </ul>
     </div>
 </div>
