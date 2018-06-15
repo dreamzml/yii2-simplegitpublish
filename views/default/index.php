@@ -40,16 +40,22 @@ use yii\helpers\Html;
               <div class="row" style="margin-bottom:15px;">
                 <div class="col-lg-10">
                   <div class="input-group">
-                    <?= Html::input('text', 'branch',  '', ['list'=>'companys', 'class'=>'form-control', 'placeholder'=>'请输入分支名称', 'id'=>'input-branch']) ?>
+                      <?php if (!empty($subGitPath)) echo "<div class=\"col-lg-6\">"; ?>
+
+                      <?= Html::input('text', 'branch', '', ['list' => 'companys', 'class' => 'form-control', 'placeholder' => '请输入分支名称', 'id' => 'input-branch']) ?>
                     <datalist id="companys">
-                      <?php foreach ($remoteBranch as $branch) echo Html::tag('option', '', ['value'=>$branch]);  ?>
+                        <?php foreach ($remoteBranch as $branch) echo Html::tag('option', '', ['value' => $branch]); ?>
                     </datalist>
-                    <?php if(!empty($subGitPath)){ ?>
-                      <?= Html::input('text', 'subbranch',  '', ['list'=>'companys', 'class'=>'form-control', 'placeholder'=>'请输入分支名称', 'id'=>'input-branch']) ?>
-                    <datalist id="companys">
-                        <?php foreach ($subRemoteBranch as $branch) echo Html::tag('option', '', ['value'=>$branch]);  ?>
-                    </datalist>
-                    <?php } ?>
+                      <?php if (!empty($subGitPath)) echo "</div>"; ?>
+
+                      <?php if (!empty($subGitPath)) { ?>
+                        <div class="col-lg-6">
+                            <?= Html::input('text', 'subbranch', '', ['list' => 'subcompanys', 'class' => 'form-control', 'placeholder' => '请输入分支名称', 'id' => 'input-branch-sub']) ?>
+                          <datalist id="subcompanys">
+                              <?php foreach ($subRemoteBranch as $branch) echo Html::tag('option', '', ['value' => $branch]); ?>
+                          </datalist>
+                        </div>
+                      <?php } ?>
 
                     <span class="input-group-btn">
                       <button class="btn btn-default" id="margeBranch" type="button">合并分支到当前环境!</button>
