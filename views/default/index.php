@@ -164,6 +164,7 @@ use yii\helpers\Html;
 
         var mergeBranch = {
             branch:'',
+            subBranch:'',
             scrollTop: function(){
                 var div = document.getElementById('result-box');
                 //div.scrollTop = div.scrollHeight;
@@ -173,8 +174,15 @@ use yii\helpers\Html;
               var _this = this;
               $('#margeBranch').on('click', function(){
                   _this.branch = $.trim($('#input-branch').val());
+
+                  var isSubGit = $("#input-branch-sub").length>0;
+                  _this.subBranch = isSubGit? $.trim($('#input-branch-sub').val()) : '';
                   if(_this.branch==''){
                     alert('请先择分支');
+                    return;
+                  }
+                  if(_this.subBranch=='' && isSubGit){
+                    alert('请先择子项目分支');
                     return;
                   }
                   $('#prepgress-merge').show();
@@ -187,7 +195,7 @@ use yii\helpers\Html;
               var _this = this;
               $.ajax({
                   type: "GET",
-                  url: '<?= Url::to(["sync"]) ?>?branch='+_this.branch,
+                  url: '<?= Url::to(["sync"]) ?>?branch='+_this.branch+'&subBranch='+_this.subBranch,
                   beforeSend:function(){
                     $('#result-box').html('<div class="loading"></div>');
                     setProgress('prepgress-merge', 35);
