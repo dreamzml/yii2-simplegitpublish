@@ -277,8 +277,8 @@ class DefaultController extends Controller
         $strout .= "<span class='text-warning'># {$shell}</span> \n";
         $strout .= $changes;
 
-        $shell = "cd $gitRoot{$this->module->subGitPath} && git status 2>&1"
-        $status = shell_exec("cd $gitRoot{$this->module->subGitPath} && git status 2>&1");
+        $shell = "cd $gitRoot{$this->module->subGitPath} && git status 2>&1";
+        $status = shell_exec($shell);
         $changes = $changes || (strpos($status, "nothing to commit") === false);
         $strout .= "<span class='text-warning'># {$shell}</span> \n";
         $strout .= $changes;
