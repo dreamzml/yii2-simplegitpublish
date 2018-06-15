@@ -51,14 +51,32 @@ class DefaultController extends Controller
             }
         }
 
+        //获取子项目所有分支
+        if(!empty($this->module->subGitPath)){
+
+            shell_exec(" cd $gitRoot{$this->module->subGitPath} && git fetch --all 2>&1");
+            $branchs      = shell_exec(" cd $gitRoot && git branch  -r 2>&1");
+            $branchs      = explode("\n", rtrim($branchs));
+            $subRemoteBranch = [];
+            foreach ($branchs as $branch) {
+                if (strpos($branch, '/HEAD') === false) {
+                    $subRemoteBranch[] = trim($branch);
+                }
+            }
+        }
+
         //获取当前分支
         $currentBranch = $this->getCurrentBranch();
+        $currentSubBranch = empty($this->module->subGitPath)? '' : $this->getCurrentSubBranch();
 
         return $this->render('index', [
             'remoteBranch'  => $remoteBranch,
             'currentBranch' => $currentBranch,
+            'currentSubBranch' => $currentSubBranch,
             'masterRemote' => $this->masterRemote,
             'masterBranch' => $this->masterBranch,
+            'subGitPath' => $this->module->subGitPath,
+            'subRemoteBranch'  => $subRemoteBranch,
         ]);
     }
     
@@ -340,6 +358,19 @@ class DefaultController extends Controller
         $masterRemote = empty($masterRemote)? $this->masterRemote : $masterRemote;
 
         return  $masterRemote.'/'.trim(shell_exec(" cd $gitRoot && git symbolic-ref --short -q HEAD 2>&1"));
+    }
+
+    /**
+     * 获取当前分支
+     * @return [type] [description]
+     */
+    public function getCurrentSubBranch() {
+        $gitRoot = $this->getGitBootPath();
+
+        $masterRemote = Yii::$app->cache->get('currentSubMasterRemote');
+        $masterRemote = empty($masterRemote)? $this->module->subMasterRemote : $masterRemote;
+
+        return  $masterRemote.'/'.trim(shell_exec(" cd $gitRoot{$this->module->subGitPath} && git symbolic-ref --short -q HEAD 2>&1"));
     }
 
     /**
