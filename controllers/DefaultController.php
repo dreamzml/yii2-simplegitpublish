@@ -41,29 +41,10 @@ class DefaultController extends Controller
         $gitRoot = self::getGitBootPath();
 
         //获取所有分支
-        shell_exec(" cd $gitRoot && git fetch --all 2>&1");
-        $branchs      = shell_exec(" cd $gitRoot && git branch  -r 2>&1");
-        $branchs      = explode("\n", rtrim($branchs));
-        $remoteBranch = [];
-        foreach ($branchs as $branch) {
-            if (strpos($branch, '/HEAD') === false) {
-                $remoteBranch[] = trim($branch);
-            }
-        }
+        $remoteBranch = $this->getAllBranchByPath($gitRoot);
 
         //获取子项目所有分支
-        if(!empty($this->module->subGitPath)){
-
-            shell_exec(" cd $gitRoot{$this->module->subGitPath} && git fetch --all 2>&1");
-            $branchs      = shell_exec(" cd $gitRoot{$this->module->subGitPath} && git branch  -r 2>&1");
-            $branchs      = explode("\n", rtrim($branchs));
-            $subRemoteBranch = [];
-            foreach ($branchs as $branch) {
-                if (strpos($branch, '/HEAD') === false) {
-                    $subRemoteBranch[] = trim($branch);
-                }
-            }
-        }
+        $subRemoteBranch = empty($this->module->subGitPath)? [] : $this->getAllBranchByPath($gitRoot.$this->module->subGitPath);
 
         //获取当前分支
         $currentBranch = $this->getCurrentBranch();
@@ -126,11 +107,34 @@ class DefaultController extends Controller
         $gitRoot = self::getGitBootPath();
         
         $oriBranch = Yii::$app->request->get('branch', "{$this->masterRemote}/{$this->masterBranch}");
+        $subBranch = Yii::$app->request->get('subBranch', "{$this->module->subMasterRemote}/{$this->module->subMasterBranch}");
+
+        //验证分支
+        if(!in_array($oriBranch, $this->getAllBranchByPath($gitRoot))){
+            $strout     .= "\n\n<span class='text-warning'>***************************************************************\n***************     分支不存在或不正确       *****************\n***************************************************************\n</span>";
+            return "<pre>$strout</pre>";
+        }
+        if(!empty($this->module->subGitPath) && !in_array($oriBranch, $this->getAllBranchByPath($gitRoot.$this->module->subGitPath))){
+            $strout     .= "\n\n<span class='text-warning'>***************************************************************\n***************        子项目分支不存       *****************\n***************************************************************\n</span>";
+            return "<pre>$strout</pre>";
+        }
+
+        //合并分支
         $branch    = str_replace('/', ' ', $oriBranch);
         $shell     = "cd $gitRoot && git pull {$branch} 2>&1";
         $strout    = "<span class='text-warning'># {$shell}</span> \n";
         $outPutCmd = shell_exec($shell);
         $strout    .= $outPutCmd;
+
+
+        //子项目合并分支
+        if(!empty($this->module->subGitPath)){
+            $branch    = str_replace('/', ' ', $subBranch);
+            $shell     = "cd $gitRoot{$this->module->subGitPath} && git pull {$branch} 2>&1";
+            $strout    .= "<span class='text-warning'># {$shell}</span> \n";
+            $outPutCmd = shell_exec($shell);
+            $strout    .= $outPutCmd;
+        }
 
         //获取当前分支
         $currentBranch =  $this->getCurrentBranch();
@@ -427,5 +431,21 @@ class DefaultController extends Controller
         
         unset($mergeBranchs[array_search($branch, $mergeBranchs)]);
         Yii::$app->cache->set('merge_branchs', $mergeBranchs);
+    }
+
+    /**
+     * 获取目录下的git 项目后有分支
+     * @param string $path
+     */
+    private function getAllBranchByPath(string $path) {
+        shell_exec(" cd $path && git fetch --all 2>&1");
+        $branchs      = shell_exec(" cd $path && git branch  -r 2>&1");
+        $branchs      = explode("\n", rtrim($branchs));
+        $subRemoteBranch = [];
+        foreach ($branchs as $branch) {
+            if (strpos($branch, '/HEAD') === false) {
+                $subRemoteBranch[] = trim($branch);
+            }
+        }
     }
 }
