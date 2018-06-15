@@ -79,7 +79,14 @@ class DefaultController extends Controller
         
         $strout = "<span class='text-warning'># {$shell}</span> \n";
         $strout .= shell_exec($shell);
-        
+
+
+        if(!empty($this->module->subGitPath)){
+            $shell = "cd $gitRoot{$this->module->subGitPath} && git status 2>&1";
+            $strout .= "\n<span class='text-warning'># {$shell}</span> \n";
+            $strout .= shell_exec($shell);
+        }
+
         return "<pre>$strout</pre>";
     }
     
