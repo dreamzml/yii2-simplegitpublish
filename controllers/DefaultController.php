@@ -111,11 +111,11 @@ class DefaultController extends Controller
 
         //验证分支
         if(!in_array($oriBranch, $this->getAllBranchByPath($gitRoot))){
-            $strout     .= "\n\n<span class='text-warning'>***************************************************************\n***************     分支不存在或不正确       *****************\n***************************************************************\n</span>";
+            $strout = "\n\n<span class='text-warning'>***************************************************************\n***************     分支不存在或不正确       *****************\n***************************************************************\n</span>";
             return "<pre>$strout</pre>";
         }
-        if(!empty($this->module->subGitPath) && !in_array($oriBranch, $this->getAllBranchByPath($gitRoot.$this->module->subGitPath))){
-            $strout     .= "\n\n<span class='text-warning'>***************************************************************\n***************        子项目分支不存       *****************\n***************************************************************\n</span>";
+        if(!empty($this->module->subGitPath) && !in_array($subBranch, $this->getAllBranchByPath($gitRoot.$this->module->subGitPath))){
+            $strout = "\n\n<span class='text-warning'>***************************************************************\n***************        子项目分支不存       *****************\n***************************************************************\n</span>";
             return "<pre>$strout</pre>";
         }
 
