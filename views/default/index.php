@@ -50,7 +50,7 @@ use yii\helpers\Html;
 
                       <?php if (!empty($subGitPath)) { ?>
                         <div class="col-lg-6">
-                            <?= Html::input('text', 'subbranch', '', ['list' => 'subcompanys', 'class' => 'form-control', 'placeholder' => '请输入分支名称', 'id' => 'input-branch-sub']) ?>
+                            <?= Html::input('text', 'subbranch', '', ['list' => 'subcompanys', 'class' => 'form-control', 'placeholder' => '选择子项目分支', 'id' => 'input-branch-sub']) ?>
                           <datalist id="subcompanys">
                               <?php foreach ($subRemoteBranch as $branch) echo Html::tag('option', '', ['value' => $branch]); ?>
                           </datalist>

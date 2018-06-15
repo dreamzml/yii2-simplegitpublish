@@ -55,7 +55,7 @@ class DefaultController extends Controller
         if(!empty($this->module->subGitPath)){
 
             shell_exec(" cd $gitRoot{$this->module->subGitPath} && git fetch --all 2>&1");
-            $branchs      = shell_exec(" cd $gitRoot && git branch  -r 2>&1");
+            $branchs      = shell_exec(" cd $gitRoot{$this->module->subGitPath} && git branch  -r 2>&1");
             $branchs      = explode("\n", rtrim($branchs));
             $subRemoteBranch = [];
             foreach ($branchs as $branch) {
