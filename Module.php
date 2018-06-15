@@ -13,13 +13,23 @@ class Module extends \yii\base\Module
 {
     public $allowedIPs = ['127.0.0.1', '::1'];
     public $monitors = ['admin'=>'123456'];
-    public $nodeBasePath = '/wemall/web';
+
+    //项目主分支，主仓库名
     public $masterRemote = 'origin';
     public $masterBranch = 'master';
+
+    //子项相对路径，主分支，主仓库名，
     public $subGitPath = null;
-    public $compilePath = '/wemall/web/jsg';
+    public $subMasterRemote = 'origin';
+    public $subMasterBranch = 'master';
+
+    //编辑脚本相关
+    public $nodeBasePath = '/wemall/web'; // node 脚本执行目录
+    public $compilePath = '/wemall/web/jsg';//编译代码存放路径
     public $compileWebpackCmd = 'webpack';
-    public $compileGulpCmd = 'gulp script';
+    public $compileWebpackCmdTest = 'webpack'; //js 编译命令 测试环境
+    public $compileWebpackCmdProd = 'webpack'; //js 编译命令 生产环境
+    public $compileGulpCmd = 'gulp script'; //js 压缩命令
 
     /**
      * @inheritdoc
