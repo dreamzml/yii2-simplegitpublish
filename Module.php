@@ -12,12 +12,12 @@ use yii\web\Response;
 class Module extends \yii\base\Module
 {
     public $allowedIPs = ['127.0.0.1', '::1'];
-    
     public $monitors = ['admin'=>'123456'];
-
     public $nodeBasePath = '/wemall/web';
     public $masterRemote = 'origin';
     public $masterBranch = 'master';
+    public $subGitPath = null;
+    public $compilePath = '/wemall/web/jsg';
 
     /**
      * @inheritdoc
