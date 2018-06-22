@@ -325,6 +325,10 @@ class DefaultController extends Controller
         
         $branch = Yii::$app->request->get('branch');
         $branch = str_replace('/', ' ', $branch);
+
+        $subBranch = Yii::$app->request->get('subBranch');
+        $subBranch = str_replace('/', ' ', $subBranch);
+
         //写入日志
         yii::info("git push branch {$branch} run star", 'githook');
 
@@ -338,11 +342,13 @@ class DefaultController extends Controller
         $strout .= "<span class='text-warning'># {$shell}</span> \n";
         $strout .= $status;
 
-        $shell = "cd $gitRoot{$this->module->subGitPath} && git status 2>&1";
-        $status = shell_exec($shell);
-        $changes = $changes || (strpos($status, "nothing to commit") === false);
-        $strout .= "\n<span class='text-warning'># {$shell}</span> \n";
-        $strout .= $status;
+        if(!empty($this->module->subGitPath)) {
+            $shell   = "cd $gitRoot{$this->module->subGitPath} && git status 2>&1";
+            $status  = shell_exec($shell);
+            $changes = $changes || (strpos($status, "nothing to commit") === false);
+            $strout  .= "\n<span class='text-warning'># {$shell}</span> \n";
+            $strout  .= $status;
+        }
 
 
         $addCmd = $changes && !empty($this->module->compilePath) ? " cd $gitRoot{$this->module->compilePath} git add --all * && git commit -am \"update gulp js file\" &&" : "";
@@ -350,6 +356,12 @@ class DefaultController extends Controller
         $shell = " {$addCmd} cd $gitRoot && git push $branch 2>&1";
         $strout .= "\n<span class='text-warning'># {$shell}</span> \n";
         $strout .= shell_exec($shell);
+
+        if(!empty($this->module->subGitPath)) {
+            $shell = "cd $gitRoot{$this->module->subGitPath} && git push $subBranch 2>&1";
+            $strout .= "\n<span class='text-warning'># {$shell}</span> \n";
+            $strout .= shell_exec($shell);
+        }
         
         return "<pre>$strout</pre>";
     }
