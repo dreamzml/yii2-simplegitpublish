@@ -425,7 +425,7 @@ use yii\helpers\Html;
               $.ajax({
                 type: "GET",
                 //async: false,
-                url: '<?= Url::to(["sync"]) ?>?branch='+_this.prodBranch+'&subBranch='+_this.prodSubBranch,,
+                url: '<?= Url::to(["sync"]) ?>?branch='+_this.prodBranch+'&subBranch='+_this.prodSubBranch,
                 success: function(result){
                   $('#result-box').append(result);
                   _this.pushTestBranch();
