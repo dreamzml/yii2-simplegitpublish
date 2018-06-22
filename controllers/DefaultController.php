@@ -199,7 +199,7 @@ class DefaultController extends Controller
         $subBranch = Yii::$app->request->get('subBranch');
 
         //验证分支
-        if(!in_array($oriBranch, $this->getAllBranchByPath($gitRoot))){
+        if(!in_array($branch, $this->getAllBranchByPath($gitRoot))){
             $strout = "\n\n<span class='text-warning'>***************************************************************\n***************     分支不存在或不正确       *****************\n***************************************************************\n</span>";
             return "<pre>$strout</pre>";
         }
