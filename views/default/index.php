@@ -16,7 +16,7 @@ use yii\helpers\Html;
             <div class="alert alert-warning">
                 <div class="clearfix">
                 <h2 class="wd60"><?= Yii::$app->name ?> 当前分支：<span id="curr-branch"><?= $currentBranch ?></span>
-                    <?php  if(!empty($subGitPath)) echo " ------ $subGitPath:$currentSubBranch"; ?>
+                    <?php  if(!empty($subGitPath)) echo " ------ <span id=\"curr-subBranch\">$subGitPath:$currentSubBranch</span>"; ?>
                   </h2>
                   <span class="wd30">
                     <?= YII_ENV_TEST?"<测试环境>":(YII_ENV_PROD?"<生产环境>":"<开发环境>") ?>
@@ -120,6 +120,8 @@ use yii\helpers\Html;
             $ ('#'+dom+' .progress-bar').css({'width':parent+'%'}).find('span').html(parent+'%');
         }
 
+        var isSubGit = $("#input-branch-sub").length>0;
+
         $('.ajax-btn').on('click', function(){
             var href = $(this).attr('href');
             $.ajax({
@@ -140,7 +142,6 @@ use yii\helpers\Html;
 
         $('#checkBranch').on('click', function(){
             var branch = $.trim($('#input-branch').val());
-            var isSubGit = $("#input-branch-sub").length>0;
             var subBranch = isSubGit? $.trim($('#input-branch-sub').val()) : '';
             if(branch==''){
               alert('请先择分支');
@@ -181,7 +182,6 @@ use yii\helpers\Html;
               $('#margeBranch').on('click', function(){
                   _this.branch = $.trim($('#input-branch').val());
 
-                  var isSubGit = $("#input-branch-sub").length>0;
                   _this.subBranch = isSubGit? $.trim($('#input-branch-sub').val()) : '';
                   if(_this.branch==''){
                     alert('请先择分支');
@@ -277,9 +277,12 @@ use yii\helpers\Html;
 
         var push = {
             branch:'',
+            subBranch:'',
             currbranch: '',
+            currSubBranch: '',
             currTestBranch:[],
             prodBranch:'<?= $masterRemote ?>/<?= $masterBranch ?>',
+            prodSubBranch:'<?= $subMasterRemote ?>/<?= $subMasterBranch ?>',
             scrollTop: function(){
                 $('#result-box').scrollTop($('#result-box').prop("scrollHeight"));
             },
@@ -288,12 +291,21 @@ use yii\helpers\Html;
               $('#union-branch').on('click', '.push-btn', function(){
 
                 _this.branch = $(this).attr('branch');
+                _this.subBranch = isSubGit ? $(this).attr('subbranch') : '';
                 _this.currbranch = $('#curr-branch').text();
+                _this.currSubBranch = isSubGit ? $('#curr-subBranch').text() : '';
                 _this.currTestBranch = [];
                 $('.push-btn').each(function(obj){
                     var b = $(this).attr('branch');
-                    if(b != _this.branch)
-                      _this.currTestBranch.push(b);
+                    if(isSubGit){
+                      var sb = $(this).attr('subbranch');
+                      if(b != _this.branch || sb != _this.subBranch)
+                        _this.currTestBranch.push(b+'---[separator]---'+sb);
+                    }else{
+                      if(b != _this.branch)
+                        _this.currTestBranch.push(b);
+                    }
+
                 });
                 $('#prepgress-push').show();
                 setProgress('prepgress-push', 5);
@@ -306,7 +318,7 @@ use yii\helpers\Html;
               $.ajax({
                 type: "GET",
                 // async: false,
-                url: '<?= Url::to(["reset"]) ?>?branch='+_this.prodBranch,
+                url: '<?= Url::to(["reset"]) ?>?branch='+_this.prodBranch+'&subBranch='+_this.prodSubBranch,
                 beforeSend:function(){
                   $('#result-box').html('<div class="loading"></div>');
                 },
@@ -327,7 +339,7 @@ use yii\helpers\Html;
               $.ajax({
                 type: "GET",
                 //async: false,
-                url: '<?= Url::to(["sync"]) ?>?branch='+_this.branch,
+                url: '<?= Url::to(["sync"]) ?>?branch='+_this.branch+'&subBranch='+_this.subBranch,
                 success: function(result){
                     $('#result-box').append(result);
                       _this.webpackProdBranch();
@@ -378,7 +390,7 @@ use yii\helpers\Html;
               $.ajax({
                   type: "GET",
                   //async: false,
-                  url: '<?= Url::to(["gulp-push"]) ?>?branch='+_this.prodBranch,
+                  url: '<?= Url::to(["gulp-push"]) ?>?branch='+_this.prodBranch+'&subBranch='+_this.prodSubBranch,,
                   success: function(result){
                       $('#result-box').append(result);
                       _this.checkoutTestBranch( );
@@ -395,7 +407,7 @@ use yii\helpers\Html;
               $.ajax({
                   type: "GET",
                   //async: false,
-                  url: '<?= Url::to(["reset"]) ?>?branch='+_this.currbranch,
+                  url: '<?= Url::to(["reset"]) ?>?branch='+_this.currbranch+'&subBranch='+_this.currSubBranch,
                   success: function(result){
                       $('#result-box').append(result);
                       _this.mergeMasterToTest();
@@ -413,7 +425,7 @@ use yii\helpers\Html;
               $.ajax({
                 type: "GET",
                 //async: false,
-                url: '<?= Url::to(["sync"]) ?>?branch='+_this.prodBranch,
+                url: '<?= Url::to(["sync"]) ?>?branch='+_this.prodBranch+'&subBranch='+_this.prodSubBranch,,
                 success: function(result){
                   $('#result-box').append(result);
                   _this.pushTestBranch();
@@ -430,7 +442,7 @@ use yii\helpers\Html;
               $.ajax({
                 type: "GET",
                 //async: false,
-                url: '<?= Url::to(["gulp-push"]) ?>?branch='+_this.currbranch,
+                url: '<?= Url::to(["gulp-push"]) ?>?branch='+_this.currbranch+'&subBranch='+_this.currSubBranch,
                 success: function(result){
                   $('#result-box').append(result);
                   _this.mergeTestBranch();
@@ -450,10 +462,17 @@ use yii\helpers\Html;
                   return _this.webpackTestBranch();
               }
 
+              var sBranch = '';
+              if(isSubGit){
+                  var mixBranch = tBranch.slice('---[separator]---');
+                  tBranch = mixBranch[0];
+                  sBranch = mixBranch[1];
+              }
+
               $.ajax({
                   type: "GET",
                   //async: false,
-                  url: '<?= Url::to(["sync"]) ?>?branch='+tBranch,
+                  url: '<?= Url::to(["sync"]) ?>?branch='+tBranch+'&subBranch='+sBranch,
                   success: function(result){
                       $('#result-box').append(result);
                       _this.mergeTestBranch();

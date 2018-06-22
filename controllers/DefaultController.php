@@ -58,6 +58,8 @@ class DefaultController extends Controller
             'masterBranch' => $this->masterBranch,
             'subGitPath' => $this->module->subGitPath,
             'subRemoteBranch'  => $subRemoteBranch,
+            'subMasterRemote' => $this->module->subMasterRemote,
+            'subMasterBranch' => $this->module->subMasterBranch,
         ]);
     }
     
