@@ -140,13 +140,19 @@ use yii\helpers\Html;
 
         $('#checkBranch').on('click', function(){
             var branch = $.trim($('#input-branch').val());
+            var isSubGit = $("#input-branch-sub").length>0;
+            var subBranch = isSubGit? $.trim($('#input-branch-sub').val()) : '';
             if(branch==''){
               alert('请先择分支');
               return;
             }
+            if(subBranch=='' && isSubGit){
+              alert('请先择子项目分支');
+              return;
+            }
             $.ajax({
                 type: "GET",
-                url: '<?= Url::to(["reset"]) ?>?branch='+branch,
+                url: '<?= Url::to(["reset"]) ?>?branch='+branch+'&subBranch='+subBranch,
                 beforeSend:function(){
                   $('#result-box').html('<div class="loading"></div>');
                 },
