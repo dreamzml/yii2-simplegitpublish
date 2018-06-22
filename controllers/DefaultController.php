@@ -194,16 +194,27 @@ class DefaultController extends Controller
         //git项目地址
         $gitRoot = self::getGitBootPath();
 
-        //获取当前分支
-        $currentBranch = $this->getCurrentBranch();
 
         $branch = Yii::$app->request->get('branch');
+        $subBranch = Yii::$app->request->get('subBranch');
+
+        //验证分支
+        if(!in_array($oriBranch, $this->getAllBranchByPath($gitRoot))){
+            $strout = "\n\n<span class='text-warning'>***************************************************************\n***************     分支不存在或不正确       *****************\n***************************************************************\n</span>";
+            return "<pre>$strout</pre>";
+        }
+        if(!empty($this->module->subGitPath) && !in_array($subBranch, $this->getAllBranchByPath($gitRoot.$this->module->subGitPath))){
+            $strout = "\n\n<span class='text-warning'>***************************************************************\n***************        子项目分支不存       *****************\n***************************************************************\n</span>";
+            return "<pre>$strout</pre>";
+        }
+
+
         Yii::$app->cache->delete('merge_branchs');
-        
+
+        //获取当前分支
+        $currentBranch = $this->getCurrentBranch();
         $branchName = explode('/', $branch);
-
         $realBranch = $branchName[1];
-
         if($currentBranch == $branch){
             //重置当前分支
             $shell = "cd $gitRoot && git reset --hard {$branch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
@@ -213,6 +224,22 @@ class DefaultController extends Controller
             //删除已存在的本地分支
             shell_exec(" cd $gitRoot &&  git branch -D {$realBranch} 2>&1");
             $shell = "cd $gitRoot && git fetch --all && git checkout -b {$realBranch} {$branch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
+        }
+
+        if(!empty($this->module->subGitPath)) {
+            $currentSubBranch = $this->getCurrentSubBranch();
+            $branchName = explode('/', $currentSubBranch);
+            $realBranch = $branchName[1];
+            if ($currentSubBranch == $subBranch) {
+                //重置当前分支
+                $shell = "cd $gitRoot{$this->module->subGitPath} && git reset --hard {$branch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
+            } else {
+                //设置当前的remote
+                Yii::$app->cache->set('currentMasterRemote', $branchName[0]);
+                //删除已存在的本地分支
+                shell_exec(" cd $gitRoot{$this->module->subGitPath} &&  git branch -D {$realBranch} 2>&1");
+                $shell = "cd $gitRoot && git fetch --all && git checkout -b {$realBranch} {$branch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
+            }
         }
 
         $strout = "<span class='text-warning'># {$shell}</span> \n";
@@ -313,7 +340,7 @@ class DefaultController extends Controller
         $strout .= $status;
 
 
-        $addCmd = $changes && !empty($this->module->compilePath) ? " cd $gitRoot{$this->module->compilePath} git add * && git add -A && git commit -am \"update gulp js file\" &&" : "";
+        $addCmd = $changes && !empty($this->module->compilePath) ? " cd $gitRoot{$this->module->compilePath} git add --all * && git commit -am \"update gulp js file\" &&" : "";
 
         $shell = " {$addCmd} cd $gitRoot && git push $branch 2>&1";
         $strout .= "\n<span class='text-warning'># {$shell}</span> \n";
