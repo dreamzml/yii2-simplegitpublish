@@ -443,7 +443,7 @@ class DefaultController extends Controller
         foreach ($commitIds as $commit) {
             $commit = explode(' ', $commit);
             if (isset($commit[1])) {
-                $status = shell_exec("cd $gitRoot && git diff-tree --no-commit-id --name-only -r {$commit[1]} 2>&1");
+                $status = shell_exec("cd $gitRoot{$this->module->nodeBasePath} && git diff-tree --no-commit-id --name-only -r {$commit[1]} 2>&1");
                 if (!(stripos($status, '.js') === false) || !(stripos($status, '.vue') === false))
                     return true;
             }
