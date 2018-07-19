@@ -356,7 +356,7 @@ class DefaultController extends Controller
 
         //git 添加编译生成的文件
         if($changes && !empty($this->module->compilePath)){
-            $addCmd = " cd $gitRoot{$this->module->compilePath} git add --all * && git commit -am \"update gulp js file\" 2>&1 ";
+            $addCmd = " cd $gitRoot{$this->module->compilePath} && git add --all * && git commit -am \"update gulp js file\" 2>&1 ";
             $strout .= "\n<span class='text-warning'># {$addCmd}</span> \n";
             $strout .= shell_exec($addCmd);
         }
