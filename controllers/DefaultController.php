@@ -342,21 +342,25 @@ class DefaultController extends Controller
         $shell = "cd $gitRoot && git status 2>&1";
         $status = shell_exec($shell);
         $changes = strpos($status, "nothing to commit") === false;
-        $strout .= "<span class='text-warning'># {$shell}</span> \n";
-        $strout .= $status;
+        //$strout .= "<span class='text-warning'># {$shell}</span> \n";
+        //$strout .= $status;
 
         if(!empty($this->module->subGitPath)) {
             $shell   = "cd $gitRoot{$this->module->subGitPath} && git status 2>&1";
             $status  = shell_exec($shell);
             $changes = $changes || (strpos($status, "nothing to commit") === false);
-            $strout  .= "\n<span class='text-warning'># {$shell}</span> \n";
-            $strout  .= $status;
+            //$strout  .= "\n<span class='text-warning'># {$shell}</span> \n";
+            //$strout  .= $status;
         }
 
+        //git 添加编译生成的文件
+        if($changes && !empty($this->module->compilePath)){
+            $addCmd = " cd $gitRoot{$this->module->compilePath} git add --all * && git commit -am \"update gulp js file\" 2>&1 ";
+            $strout .= "\n<span class='text-warning'># {$shell}</span> \n";
+            $strout .= shell_exec($shell);
+        }
 
-        $addCmd = $changes && !empty($this->module->compilePath) ? " cd $gitRoot{$this->module->compilePath} git add --all * && git commit -am \"update gulp js file\" &&" : "";
-
-        $shell = " {$addCmd} cd $gitRoot && git push $branch 2>&1";
+        $shell = "cd $gitRoot && git push $branch 2>&1";
         $strout .= "\n<span class='text-warning'># {$shell}</span> \n";
         $strout .= shell_exec($shell);
 
