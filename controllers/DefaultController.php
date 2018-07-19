@@ -164,8 +164,8 @@ class DefaultController extends Controller
                     $shell = "cd $gitRoot && git pull {$mBranch} 2>&1";
                     shell_exec($shell);
                 }
-            } elseif ($currentBranch != $oriBranch && $oriBranch != $this->masterRemote.'/'.$this->masterBranch && !empty($oriBranch)
-                && (empty($currentSubBranch) || ($subBranch != $currentSubBranch && $subBranch != $oriBranch)) {
+            } elseif ( ($currentBranch != $oriBranch && $oriBranch != $this->masterRemote.'/'.$this->masterBranch && !empty($oriBranch))
+                || (!empty($currentSubBranch) && $subBranch != $currentSubBranch && $subBranch != $oriBranch)) {
                 $mergeBranchs[] = empty($this->module->subGitPath)? $oriBranch :  "{$oriBranch}---[separator]---{$subBranch}";
                 $mergeBranchs   = array_unique($mergeBranchs);
             }
