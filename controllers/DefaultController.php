@@ -428,9 +428,17 @@ class DefaultController extends Controller
     public function modifieldIncloudJsx() {
         //git项目地址
         $gitRoot = self::getGitBootPath();
-        $masterBranch = $this->masterRemote.'/'.$this->masterBranch;
 
-        $commitIds = shell_exec("cd $gitRoot && git cherry -v $masterBranch 2>&1");
+        //判断node是否在主项目
+        if(strpos($this->module->nodeBasePath,$this->module->subGitPath)===false){
+            //node在子git项目
+            $masterBranch = $this->module->subMasterRemote.'/'.$this->module->subMasterBranch;
+        }else{
+            //node在主git项目
+            $masterBranch = $this->masterRemote.'/'.$this->masterBranch;
+        }
+
+        $commitIds = shell_exec("cd $gitRoot{$this->module->nodeBasePath} && git cherry -v $masterBranch 2>&1");
         $commitIds = explode("\n", rtrim($commitIds));
         foreach ($commitIds as $commit) {
             $commit = explode(' ', $commit);
