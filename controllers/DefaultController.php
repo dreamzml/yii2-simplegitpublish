@@ -259,6 +259,7 @@ class DefaultController extends Controller
      */
     public function actionWebpack() {
         $force = Yii::$app->request->get('force');
+        $webpackEvn = Yii::$app->request->get('evn', 'test');
         
         //如果连接断开，继续执行
         ignore_user_abort(true);
@@ -275,8 +276,10 @@ class DefaultController extends Controller
         //git项目地址
         $gitRoot = self::getGitBootPath();
         $wwwRoot = "$gitRoot{$this->module->nodeBasePath}";
+
+        $compileWebpackCmd = $webpackEvn=='test'? $this->module->compileWebpackCmdTest: $this->module->compileWebpackCmdProd;
         
-        $shell = "cd $wwwRoot && rm -rf $gitRoot{$this->module->compilePath}/* && {$this->module->compileWebpackCmd} 2>&1";
+        $shell = "cd $wwwRoot && rm -rf $gitRoot{$this->module->compilePath}/* && {$compileWebpackCmd} 2>&1";
         
         $strout = "<span class='text-warning'># {$shell}</span> \n";
         $strout .= shell_exec($shell);

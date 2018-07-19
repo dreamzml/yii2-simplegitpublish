@@ -26,7 +26,6 @@ class Module extends \yii\base\Module
     //编辑脚本相关
     public $nodeBasePath = '/wemall/web'; // node 脚本执行目录
     public $compilePath = '/wemall/web/jsg';//编译代码存放路径
-    public $compileWebpackCmd = 'webpack';
     public $compileWebpackCmdTest = 'webpack'; //js 编译命令 测试环境
     public $compileWebpackCmdProd = 'webpack'; //js 编译命令 生产环境
     public $compileGulpCmd = 'gulp script'; //js 压缩命令

@@ -356,7 +356,7 @@ use yii\helpers\Html;
               $.ajax({
                 type: "GET",
                 //async: false,
-                url: '<?= Url::to(["webpack"]) ?>',
+                url: '<?= Url::to(["webpack"]) ?>'+'?evn=prod',
                 success: function(result){
                     $('#result-box').append(result);
                       _this.gulpProdBranch();
@@ -489,7 +489,7 @@ use yii\helpers\Html;
               $.ajax({
                   type: "GET",
                   //async: false,
-                  url: '<?= Url::to(["webpack"]) ?>',
+                  url: '<?= Url::to(["webpack"]) ?>'+'?evn=test',
                   success: function(result){
                       $('#result-box').append(result);
                       _this.success();
