@@ -128,7 +128,6 @@ class DefaultController extends Controller
         $outPutCmd = shell_exec($shell);
         $strout    .= $outPutCmd;
 
-
         //子项目合并分支
         if(!empty($this->module->subGitPath)){
             $branch    = str_replace('/', ' ', $subBranch);
@@ -140,7 +139,8 @@ class DefaultController extends Controller
 
         //获取当前分支
         $currentBranch =  $this->getCurrentBranch();
-        
+        $currentSubBranch = empty($this->module->subGitPath)? '' : $this->getCurrentSubBranch();
+
         $mergeBranchs = Yii::$app->cache->get('merge_branchs');
         if (!YII_ENV_PROD) {
 
@@ -164,7 +164,8 @@ class DefaultController extends Controller
                     $shell = "cd $gitRoot && git pull {$mBranch} 2>&1";
                     shell_exec($shell);
                 }
-            } elseif ($currentBranch != $oriBranch && $oriBranch != $this->masterRemote.'/'.$this->masterBranch && !empty($oriBranch)) {
+            } elseif ($currentBranch != $oriBranch && $oriBranch != $this->masterRemote.'/'.$this->masterBranch && !empty($oriBranch)
+                && (empty($currentSubBranch) || ($subBranch != $currentSubBranch && $subBranch != $oriBranch)) {
                 $mergeBranchs[] = empty($this->module->subGitPath)? $oriBranch :  "{$oriBranch}---[separator]---{$subBranch}";
                 $mergeBranchs   = array_unique($mergeBranchs);
             }
