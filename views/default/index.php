@@ -8,7 +8,7 @@
 
 use yii\helpers\Url;
 use yii\helpers\Html;
-use Yii;
+
 
 $this->title = Yii::$app->name."-git简易发布系统";
 ?>
