@@ -10,7 +10,7 @@ use yii\helpers\Url;
 use yii\helpers\Html;
 
 
-$this->title = Yii::$app->name."-".YII_ENV."-git简易发布系统";
+$this->title = Yii::$app->name."-". strtoupper(YII_ENV)."-git简易发布系统";
 ?>
 
     <!-- Begin page content -->
