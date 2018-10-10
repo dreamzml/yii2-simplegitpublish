@@ -10,6 +10,7 @@ use yii\helpers\Url;
 use yii\helpers\Html;
 
 
+
 $this->title = Yii::$app->name."-". strtoupper(YII_ENV)."-git简易发布系统";
 ?>
 
@@ -103,13 +104,6 @@ $this->title = Yii::$app->name."-". strtoupper(YII_ENV)."-git简易发布系统"
             <pre class="jumbotron" id="result-box"  style="height: 600px; overflow-y: scroll;"></pre>
     </div>
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://cdn.bootcss.com/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-    <script src="https://cdn.bootcss.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
     <script>
         //加载分支
         var loadBranch = function(){

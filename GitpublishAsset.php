@@ -17,7 +17,7 @@ class GitpublishAsset extends AssetBundle
         'gitpublish.css',
     ];
     public $js = [
-        //'gii.js',
+        'tether.min.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',
