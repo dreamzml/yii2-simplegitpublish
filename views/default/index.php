@@ -12,6 +12,419 @@ use yii\helpers\Html;
 
 
 $this->title = Yii::$app->name."-". strtoupper(YII_ENV)."-git简易发布系统";
+
+
+$this->registerJs("
+    //加载分支
+    var loadBranch = function(){
+        \$('#union-branch').load('".Url::to(["union-branch"])."');
+    }
+    loadBranch();
+
+    //设置进度条
+    var setProgress = function(dom, parent){
+        \$ ('#'+dom+' .progress-bar').css({'width':parent+'%'}).find('span').html(parent+'%');
+    }
+
+    var isSubGit = \$(\"#input-branch-sub\").length>0;
+
+    \$('.ajax-btn').on('click', function(){
+        var href = \$(this).attr('href');
+        \$.ajax({
+            type: \"GET\",
+            url: href,
+            beforeSend:function(){
+              \$('#result-box').html('<div class=\"loading\"></div>');
+            },
+            success: function(result){
+                \$('#result-box').html(result);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                \$('#result-box').html(XMLHttpRequest.responseText);
+            }
+        });
+        return false;
+    });
+
+    \$('#checkBranch').on('click', function(){
+        var branch = \$.trim($('#input-branch').val());
+        var subBranch = isSubGit? \$.trim($('#input-branch-sub').val()) : '';
+        if(branch==''){
+          alert('请先择分支');
+          return;
+        }
+        if(subBranch=='' && isSubGit){
+          alert('请先择子项目分支');
+          return;
+        }
+        \$.ajax({
+            type: \"GET\",
+            url: '".Url::to(["reset"])."?branch='+branch+'&subBranch='+subBranch,
+            beforeSend:function(){
+              \$('#result-box').html('<div class=\"loading\"></div>');
+            },
+            success: function(result){
+                \$('#result-box').html(result);
+                \$('#curr-branch').html(branch);
+                loadBranch();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                \$('#result-box').html(XMLHttpRequest.responseText);
+            }
+        });
+        return false;
+    });
+
+    var mergeBranch = {
+        branch:'',
+        subBranch:'',
+        scrollTop: function(){
+            var div = document.getElementById('result-box');
+            //div.scrollTop = div.scrollHeight;
+            \$('#result-box').scrollTop(div.scrollHeight);
+        },
+        init: function(){
+          var _this = this;
+          \$('#margeBranch').on('click', function(){
+              _this.branch = \$.trim(\$('#input-branch').val());
+
+              _this.subBranch = isSubGit? \$.trim(\$('#input-branch-sub').val()) : '';
+              if(_this.branch==''){
+                alert('请先择分支');
+                return;
+              }
+              if(_this.subBranch=='' && isSubGit){
+                alert('请先择子项目分支');
+                return;
+              }
+              \$('#prepgress-merge').show();
+              setProgress('prepgress-merge', 5);
+              _this.mergBranch();
+              return false;
+          });
+        },
+        mergBranch: function(){
+          var _this = this;
+          \$.ajax({
+              type: \"GET\",
+              url: '". Url::to(["sync"])."?branch='+_this.branch+'&subBranch='+_this.subBranch,
+              beforeSend:function(){
+                \$('#result-box').html('<div class=\"loading\"></div>');
+                setProgress('prepgress-merge', 35);
+              },
+              success: function(result){
+                  \$('#result-box').html(result);
+                  _this.webpackBranch();
+
+              },
+              error: function (XMLHttpRequest, textStatus, errorThrown) {
+                  \$('#result-box').html(\"\");
+                  _this.error(XMLHttpRequest.responseText);
+              }
+          });
+        },
+        webpackBranch: function(){
+          var _this = this;
+          \$.ajax({
+              type: \"GET\",
+              url: '". Url::to(["webpack"])."',
+              beforeSend:function(){
+                setProgress('prepgress-merge', 70);
+              },
+              success: function(result){
+                  \$('#result-box').append(result);
+                  _this.success();
+
+              },
+              error: function (XMLHttpRequest, textStatus, errorThrown) {
+                  _this.error(XMLHttpRequest.responseText);
+              }
+          });
+        },
+        success: function(){
+          var _this = this;
+          setProgress('prepgress-merge', 100);
+          \$('#prepgress-merge .progress-bar').removeClass('progress-bar-animated').addClass('bg-success');
+          loadBranch();
+          _this.reset();
+        },
+        error: function(text){
+          var _this = this;
+          \$('#result-box').append(text);
+          \$('#prepgress-merge .progress-bar').removeClass('progress-bar-animated').addClass('bg-danger');
+          _this.reset();
+        },
+        reset: function(){
+          setTimeout(function(){
+            \$('#prepgress-merge .progress-bar').removeClass('bg-danger bg-success').addClass('progress-bar-animated');
+            \$('#prepgress-merge').hide();
+          }, 3000);
+        }
+    };
+    mergeBranch.init();
+
+    var push = {
+        branch:'',
+        subBranch:'',
+        currbranch: '',
+        currSubBranch: '',
+        currTestBranch:[],
+        prodBranch:'{$masterRemote}/{$masterBranch}',
+        prodSubBranch:'{$subMasterRemote}/{$subMasterBranch}',
+        scrollTop: function(){
+            \$('#result-box').scrollTop(\$('#result-box').prop(\"scrollHeight\"));
+        },
+        init: function(){
+          var _this = this;
+          \$('#union-branch').on('click', '.push-btn', function(){
+
+            _this.branch = \$(this).attr('branch');
+            _this.subBranch = isSubGit ? \$(this).attr('subbranch') : '';
+            _this.currbranch = \$('#curr-branch').text();
+            _this.currSubBranch = isSubGit ? \$('#curr-subBranch').text() : '';
+            _this.currTestBranch = [];
+            \$('.push-btn').each(function(obj){
+                var b = \$(this).attr('branch');
+                if(isSubGit){
+                  var sb = \$(this).attr('subbranch');
+                  if(b != _this.branch || sb != _this.subBranch)
+                    _this.currTestBranch.push(b+'---[separator]---'+sb);
+                }else{
+                  if(b != _this.branch)
+                    _this.currTestBranch.push(b);
+                }
+
+            });
+            \$('#prepgress-push').show();
+            setProgress('prepgress-push', 5);
+            _this.checkProdBranch();
+          });
+        },
+        checkProdBranch:function(){
+          var _this = this;
+          setProgress('prepgress-push', 10);
+          \$.ajax({
+            type: \"GET\",
+            // async: false,
+            url: '".Url::to(["reset"])."?branch='+_this.prodBranch+'&subBranch='+_this.prodSubBranch,
+            beforeSend:function(){
+              \$('#result-box').html('<div class=\"loading\"></div>');
+            },
+            success: function(result){
+                \$('#result-box').html(result);
+                _this.mergeProdBranch();
+                _this.scrollTop();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                \$('#result-box').html(\"\");
+                _this.error(XMLHttpRequest.responseText);
+            }
+          });
+        },
+        mergeProdBranch:function(){
+          var _this = this;
+          setProgress('prepgress-push', 25);
+          \$.ajax({
+            type: \"GET\",
+            //async: false,
+            url: '".Url::to(["sync"])."?branch='+_this.branch+'&subBranch='+_this.subBranch,
+            success: function(result){
+                \$('#result-box').append(result);
+                  _this.webpackProdBranch();
+                  _this.scrollTop();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                _this.error(XMLHttpRequest.responseText);
+            }
+          });
+        },
+        webpackProdBranch:function(){
+          var _this = this;
+          setProgress('prepgress-push', 38);
+          \$.ajax({
+            type: \"GET\",
+            //async: false,
+            url: '".Url::to(["webpack"])."'+'?evn=prod',
+            success: function(result){
+                \$('#result-box').append(result);
+                  _this.gulpProdBranch();
+                  _this.scrollTop();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                _this.error(XMLHttpRequest.responseText);
+            }
+          });
+        },
+        gulpProdBranch:function(){
+          var _this = this;
+          setProgress('prepgress-push', 50);
+          \$.ajax({
+              type: \"GET\",
+              //async: false,
+              url:  '". Url::to(["gulp"]) ."',
+              success: function(result){
+                  \$('#result-box').append(result);
+                  _this.pushProdBranch();
+                  _this.scrollTop();
+              },
+              error: function (XMLHttpRequest, textStatus, errorThrown) {
+                  _this.error(XMLHttpRequest.responseText);
+              }
+          });
+        },
+        pushProdBranch:function(){
+          var _this = this;
+          setProgress('prepgress-push', 60);
+          \$.ajax({
+              type: \"GET\",
+              //async: false,
+              url: '". Url::to(["gulp-push"]) ."?branch='+_this.prodBranch+'&subBranch='+_this.prodSubBranch,
+              success: function(result){
+                  \$('#result-box').append(result);
+                  _this.checkoutTestBranch( );
+                  _this.scrollTop();
+              },
+              error: function (XMLHttpRequest, textStatus, errorThrown) {
+                  _this.error(XMLHttpRequest.responseText);
+              }
+          });
+        },
+        checkoutTestBranch:function(){
+          var _this = this;
+          setProgress('prepgress-push', 70);
+          \$.ajax({
+              type: \"GET\",
+              //async: false,
+              url: '". Url::to(["reset"]) ."?branch='+_this.currbranch+'&subBranch='+_this.currSubBranch,
+              success: function(result){
+                  \$('#result-box').append(result);
+                  _this.mergeMasterToTest();
+                  _this.scrollTop();
+              },
+              error: function (XMLHttpRequest, textStatus, errorThrown) {
+                  _this.error(XMLHttpRequest.responseText);
+              }
+          });
+        },
+        mergeMasterToTest:function(){
+          var _this = this;
+          setProgress('prepgress-push', 80);
+
+          \$.ajax({
+            type: \"GET\",
+            //async: false,
+            url: '". Url::to(["sync"]) ."?branch='+_this.prodBranch+'&subBranch='+_this.prodSubBranch,
+            success: function(result){
+              \$('#result-box').append(result);
+              _this.pushTestBranch();
+              _this.scrollTop();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+              _this.error(XMLHttpRequest.responseText);
+            }
+          });
+        },
+        pushTestBranch:function(){
+          var _this = this;
+          setProgress('prepgress-push', 84);
+          \$.ajax({
+            type: \"GET\",
+            //async: false,
+            url: '". Url::to(["gulp-push"]) ."?branch='+_this.currbranch+'&subBranch='+_this.currSubBranch,
+            success: function(result){
+              \$('#result-box').append(result);
+              _this.mergeTestBranch();
+              _this.scrollTop();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+              _this.error(XMLHttpRequest.responseText);
+            }
+          });
+        },
+        mergeTestBranch:function(){
+          var _this = this;
+          setProgress('prepgress-push', 87);
+
+          var tBranch = _this.currTestBranch.pop();
+          if(!tBranch){
+              return _this.webpackTestBranch();
+          }
+
+          var sBranch = '';
+          if(isSubGit){
+              var mixBranch = tBranch.slice('---[separator]---');
+              tBranch = mixBranch[0];
+              sBranch = mixBranch[1];
+          }
+
+          \$.ajax({
+              type: \"GET\",
+              //async: false,
+              url: '". Url::to(["sync"]) ."?branch='+tBranch+'&subBranch='+sBranch,
+              success: function(result){
+                  \$('#result-box').append(result);
+                  _this.mergeTestBranch();
+                  _this.scrollTop();
+              },
+              error: function (XMLHttpRequest, textStatus, errorThrown) {
+                  _this.error(XMLHttpRequest.responseText);
+              }
+          });
+        },
+        webpackTestBranch:function(){
+          var _this = this;
+          setProgress('prepgress-push', 90);
+          \$.ajax({
+              type: \"GET\",
+              //async: false,
+              url: '". Url::to(["webpack"]) ."'+'?evn=test',
+              success: function(result){
+                  \$('#result-box').append(result);
+                  _this.success();
+                  _this.scrollTop();
+              },
+              error: function (XMLHttpRequest, textStatus, errorThrown) {
+                  _this.error(XMLHttpRequest.responseText);
+              }
+          });
+        },
+        success: function(){
+          var _this = this;
+          setProgress('prepgress-push', 100);
+          \$('#prepgress-push .progress-bar').removeClass('progress-bar-animated').addClass('bg-success');
+          //$.get('/githook/delete-union-branch?branch='+_this.branch);
+          loadBranch();
+          _this.reset();
+        },
+        error: function(text){
+          var _this = this;
+          \$('#result-box').append(text);
+          \$('#prepgress-push .progress-bar').removeClass('progress-bar-animated').addClass('bg-danger');
+          _this.reset();
+        },
+        reset: function(){
+          setTimeout(function(){
+            \$('#prepgress-push .progress-bar').removeClass('bg-danger bg-success').addClass('progress-bar-animated');
+            \$('#prepgress-push').hide();
+          }, 3000);
+        }
+    };
+    push.init();
+
+
+
+
+
+
+
+
+");
+
+
+
+
+
+
 ?>
 
     <!-- Begin page content -->
@@ -105,419 +518,7 @@ $this->title = Yii::$app->name."-". strtoupper(YII_ENV)."-git简易发布系统"
     </div>
 
     <script>
-        //加载分支
-        var loadBranch = function(){
-            $('#union-branch').load('<?= Url::to(["union-branch"]) ?>');
-        }
-        loadBranch();
 
-        //设置进度条
-        var setProgress = function(dom, parent){
-            $ ('#'+dom+' .progress-bar').css({'width':parent+'%'}).find('span').html(parent+'%');
-        }
-
-        var isSubGit = $("#input-branch-sub").length>0;
-
-        $('.ajax-btn').on('click', function(){
-            var href = $(this).attr('href');
-            $.ajax({
-                type: "GET",
-                url: href,
-                beforeSend:function(){
-                  $('#result-box').html('<div class="loading"></div>');
-                },
-                success: function(result){
-                    $('#result-box').html(result);
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    $('#result-box').html(XMLHttpRequest.responseText);
-                }
-            });
-            return false;
-        });
-
-        $('#checkBranch').on('click', function(){
-            var branch = $.trim($('#input-branch').val());
-            var subBranch = isSubGit? $.trim($('#input-branch-sub').val()) : '';
-            if(branch==''){
-              alert('请先择分支');
-              return;
-            }
-            if(subBranch=='' && isSubGit){
-              alert('请先择子项目分支');
-              return;
-            }
-            $.ajax({
-                type: "GET",
-                url: '<?= Url::to(["reset"]) ?>?branch='+branch+'&subBranch='+subBranch,
-                beforeSend:function(){
-                  $('#result-box').html('<div class="loading"></div>');
-                },
-                success: function(result){
-                    $('#result-box').html(result);
-                    $('#curr-branch').html(branch);
-                    loadBranch();
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    $('#result-box').html(XMLHttpRequest.responseText);
-                }
-            });
-            return false;
-        });
-
-        var mergeBranch = {
-            branch:'',
-            subBranch:'',
-            scrollTop: function(){
-                var div = document.getElementById('result-box');
-                //div.scrollTop = div.scrollHeight;
-                $('#result-box').scrollTop(div.scrollHeight);
-            },
-            init: function(){
-              var _this = this;
-              $('#margeBranch').on('click', function(){
-                  _this.branch = $.trim($('#input-branch').val());
-
-                  _this.subBranch = isSubGit? $.trim($('#input-branch-sub').val()) : '';
-                  if(_this.branch==''){
-                    alert('请先择分支');
-                    return;
-                  }
-                  if(_this.subBranch=='' && isSubGit){
-                    alert('请先择子项目分支');
-                    return;
-                  }
-                  $('#prepgress-merge').show();
-                  setProgress('prepgress-merge', 5);
-                  _this.mergBranch();
-                  return false;
-              });
-            },
-            mergBranch: function(){
-              var _this = this;
-              $.ajax({
-                  type: "GET",
-                  url: '<?= Url::to(["sync"]) ?>?branch='+_this.branch+'&subBranch='+_this.subBranch,
-                  beforeSend:function(){
-                    $('#result-box').html('<div class="loading"></div>');
-                    setProgress('prepgress-merge', 35);
-                  },
-                  success: function(result){
-                      $('#result-box').html(result);
-                      _this.webpackBranch();
-
-                  },
-                  error: function (XMLHttpRequest, textStatus, errorThrown) {
-                      $('#result-box').html("");
-                      _this.error(XMLHttpRequest.responseText);
-                  }
-              });
-            },
-            webpackBranch: function(){
-              var _this = this;
-              $.ajax({
-                  type: "GET",
-                  url: '<?= Url::to(["webpack"]) ?>',
-                  beforeSend:function(){
-                    setProgress('prepgress-merge', 70);
-                  },
-                  success: function(result){
-                      $('#result-box').append(result);
-                      _this.success();
-
-                  },
-                  error: function (XMLHttpRequest, textStatus, errorThrown) {
-                      _this.error(XMLHttpRequest.responseText);
-                  }
-              });
-            },
-            // gulpBranch: function(){
-            //   var _this = this;
-            //   $.ajax({
-            //       type: "GET",
-            //       url: '/githook/gulp',
-            //       beforeSend:function(){
-            //         setProgress('prepgress-merge', 75);
-            //       },
-            //       success: function(result){
-            //           $('#result-box').append(result);
-            //           _this.success();
-
-            //       },
-            //       error: function (XMLHttpRequest, textStatus, errorThrown) {
-            //           _this.error(XMLHttpRequest.responseText);
-            //       }
-            //   });
-            // },
-            success: function(){
-              var _this = this;
-              setProgress('prepgress-merge', 100);
-              $('#prepgress-merge .progress-bar').removeClass('progress-bar-animated').addClass('bg-success');
-              loadBranch();
-              _this.reset();
-            },
-            error: function(text){
-              var _this = this;
-              $('#result-box').append(text);
-              $('#prepgress-merge .progress-bar').removeClass('progress-bar-animated').addClass('bg-danger');
-              _this.reset();
-            },
-            reset: function(){
-              setTimeout(function(){
-                $('#prepgress-merge .progress-bar').removeClass('bg-danger bg-success').addClass('progress-bar-animated');
-                $('#prepgress-merge').hide();
-              }, 3000);
-            }
-        };
-        mergeBranch.init();
-
-        var push = {
-            branch:'',
-            subBranch:'',
-            currbranch: '',
-            currSubBranch: '',
-            currTestBranch:[],
-            prodBranch:'<?= $masterRemote ?>/<?= $masterBranch ?>',
-            prodSubBranch:'<?= $subMasterRemote ?>/<?= $subMasterBranch ?>',
-            scrollTop: function(){
-                $('#result-box').scrollTop($('#result-box').prop("scrollHeight"));
-            },
-            init: function(){
-              var _this = this;
-              $('#union-branch').on('click', '.push-btn', function(){
-
-                _this.branch = $(this).attr('branch');
-                _this.subBranch = isSubGit ? $(this).attr('subbranch') : '';
-                _this.currbranch = $('#curr-branch').text();
-                _this.currSubBranch = isSubGit ? $('#curr-subBranch').text() : '';
-                _this.currTestBranch = [];
-                $('.push-btn').each(function(obj){
-                    var b = $(this).attr('branch');
-                    if(isSubGit){
-                      var sb = $(this).attr('subbranch');
-                      if(b != _this.branch || sb != _this.subBranch)
-                        _this.currTestBranch.push(b+'---[separator]---'+sb);
-                    }else{
-                      if(b != _this.branch)
-                        _this.currTestBranch.push(b);
-                    }
-
-                });
-                $('#prepgress-push').show();
-                setProgress('prepgress-push', 5);
-                _this.checkProdBranch();
-              });
-            },
-            checkProdBranch:function(){
-              var _this = this;
-              setProgress('prepgress-push', 10);
-              $.ajax({
-                type: "GET",
-                // async: false,
-                url: '<?= Url::to(["reset"]) ?>?branch='+_this.prodBranch+'&subBranch='+_this.prodSubBranch,
-                beforeSend:function(){
-                  $('#result-box').html('<div class="loading"></div>');
-                },
-                success: function(result){
-                    $('#result-box').html(result);
-                    _this.mergeProdBranch();
-                    _this.scrollTop();
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    $('#result-box').html("");
-                    _this.error(XMLHttpRequest.responseText);
-                }
-              });
-            },
-            mergeProdBranch:function(){
-              var _this = this;
-              setProgress('prepgress-push', 25);
-              $.ajax({
-                type: "GET",
-                //async: false,
-                url: '<?= Url::to(["sync"]) ?>?branch='+_this.branch+'&subBranch='+_this.subBranch,
-                success: function(result){
-                    $('#result-box').append(result);
-                      _this.webpackProdBranch();
-                      _this.scrollTop();
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    _this.error(XMLHttpRequest.responseText);
-                }
-              });
-            },
-            webpackProdBranch:function(){
-              var _this = this;
-              setProgress('prepgress-push', 38);
-              $.ajax({
-                type: "GET",
-                //async: false,
-                url: '<?= Url::to(["webpack"]) ?>'+'?evn=prod',
-                success: function(result){
-                    $('#result-box').append(result);
-                      _this.gulpProdBranch();
-                      _this.scrollTop();
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    _this.error(XMLHttpRequest.responseText);
-                }
-              });
-            },
-            gulpProdBranch:function(){
-              var _this = this;
-              setProgress('prepgress-push', 50);
-              $.ajax({
-                  type: "GET",
-                  //async: false,
-                  url:  '<?= Url::to(["gulp"]) ?>',
-                  success: function(result){
-                      $('#result-box').append(result);
-                      _this.pushProdBranch();
-                      _this.scrollTop();
-                  },
-                  error: function (XMLHttpRequest, textStatus, errorThrown) {
-                      _this.error(XMLHttpRequest.responseText);
-                  }
-              });
-            },
-            pushProdBranch:function(){
-              var _this = this;
-              setProgress('prepgress-push', 60);
-              $.ajax({
-                  type: "GET",
-                  //async: false,
-                  url: '<?= Url::to(["gulp-push"]) ?>?branch='+_this.prodBranch+'&subBranch='+_this.prodSubBranch,
-                  success: function(result){
-                      $('#result-box').append(result);
-                      _this.checkoutTestBranch( );
-                      _this.scrollTop();
-                  },
-                  error: function (XMLHttpRequest, textStatus, errorThrown) {
-                      _this.error(XMLHttpRequest.responseText);
-                  }
-              });
-            },
-            checkoutTestBranch:function(){
-              var _this = this;
-              setProgress('prepgress-push', 70);
-              $.ajax({
-                  type: "GET",
-                  //async: false,
-                  url: '<?= Url::to(["reset"]) ?>?branch='+_this.currbranch+'&subBranch='+_this.currSubBranch,
-                  success: function(result){
-                      $('#result-box').append(result);
-                      _this.mergeMasterToTest();
-                      _this.scrollTop();
-                  },
-                  error: function (XMLHttpRequest, textStatus, errorThrown) {
-                      _this.error(XMLHttpRequest.responseText);
-                  }
-              });
-            },
-            mergeMasterToTest:function(){
-              var _this = this;
-              setProgress('prepgress-push', 80);
-
-              $.ajax({
-                type: "GET",
-                //async: false,
-                url: '<?= Url::to(["sync"]) ?>?branch='+_this.prodBranch+'&subBranch='+_this.prodSubBranch,
-                success: function(result){
-                  $('#result-box').append(result);
-                  _this.pushTestBranch();
-                  _this.scrollTop();
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                  _this.error(XMLHttpRequest.responseText);
-                }
-              });
-            },
-            pushTestBranch:function(){
-              var _this = this;
-              setProgress('prepgress-push', 84);
-              $.ajax({
-                type: "GET",
-                //async: false,
-                url: '<?= Url::to(["gulp-push"]) ?>?branch='+_this.currbranch+'&subBranch='+_this.currSubBranch,
-                success: function(result){
-                  $('#result-box').append(result);
-                  _this.mergeTestBranch();
-                  _this.scrollTop();
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                  _this.error(XMLHttpRequest.responseText);
-                }
-              });
-            },
-            mergeTestBranch:function(){
-              var _this = this;
-              setProgress('prepgress-push', 87);
-
-              var tBranch = _this.currTestBranch.pop();
-              if(!tBranch){
-                  return _this.webpackTestBranch();
-              }
-
-              var sBranch = '';
-              if(isSubGit){
-                  var mixBranch = tBranch.slice('---[separator]---');
-                  tBranch = mixBranch[0];
-                  sBranch = mixBranch[1];
-              }
-
-              $.ajax({
-                  type: "GET",
-                  //async: false,
-                  url: '<?= Url::to(["sync"]) ?>?branch='+tBranch+'&subBranch='+sBranch,
-                  success: function(result){
-                      $('#result-box').append(result);
-                      _this.mergeTestBranch();
-                      _this.scrollTop();
-                  },
-                  error: function (XMLHttpRequest, textStatus, errorThrown) {
-                      _this.error(XMLHttpRequest.responseText);
-                  }
-              });
-            },
-            webpackTestBranch:function(){
-              var _this = this;
-              setProgress('prepgress-push', 90);
-              $.ajax({
-                  type: "GET",
-                  //async: false,
-                  url: '<?= Url::to(["webpack"]) ?>'+'?evn=test',
-                  success: function(result){
-                      $('#result-box').append(result);
-                      _this.success();
-                      _this.scrollTop();
-                  },
-                  error: function (XMLHttpRequest, textStatus, errorThrown) {
-                      _this.error(XMLHttpRequest.responseText);
-                  }
-              });
-            },
-            success: function(){
-              var _this = this;
-              setProgress('prepgress-push', 100);
-              $('#prepgress-push .progress-bar').removeClass('progress-bar-animated').addClass('bg-success');
-              //$.get('/githook/delete-union-branch?branch='+_this.branch);
-              loadBranch();
-              _this.reset();
-            },
-            error: function(text){
-              var _this = this;
-              $('#result-box').append(text);
-              $('#prepgress-push .progress-bar').removeClass('progress-bar-animated').addClass('bg-danger');
-              _this.reset();
-            },
-            reset: function(){
-              setTimeout(function(){
-                $('#prepgress-push .progress-bar').removeClass('bg-danger bg-success').addClass('progress-bar-animated');
-                $('#prepgress-push').hide();
-              }, 3000);
-            }
-        };
-        push.init();
 
     </script>
 
