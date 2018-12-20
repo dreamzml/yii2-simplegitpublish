@@ -23,7 +23,7 @@ class DefaultController extends Controller
     
     public function beforeAction($action) : bool {
 
-        Yii::$app->cache->keyPrefix .= '_'.Yii::$app->name
+        Yii::$app->cache->keyPrefix .= '_'.Yii::$app->name;
 
         $res = parent::beforeAction($action);
         if ($res === false) {
