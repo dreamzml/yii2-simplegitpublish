@@ -157,7 +157,6 @@ class DefaultController extends Controller
                 $strout    .= "\n\n<span class='text-warning'># 回滚分支</span> \n";
 
                 $branchName = explode('/', $currentBranch);
-                $branchName = $branchName[1] ?? $currentBranch;
                 $shell      = "cd $gitRoot && git reset --hard {$currentBranch} &&  git pull {$branchName[0]} {$branchName[1]} 2>&1";
                 $strout    .= "<span class='text-warning'># {$shell}</span> \n";
                 $outPutCmd = shell_exec($shell);
