@@ -156,16 +156,32 @@ class DefaultController extends Controller
                 $branchName = explode('/', $currentBranch);
                 $branchName = $branchName[1] ?? $currentBranch;
                 $shell      = "cd $gitRoot && git reset --hard {$currentBranch} &&  git pull {$branchName[0]} {$branchName[1]} 2>&1";
-                shell_exec($shell);
+                $outPutCmd = shell_exec($shell);
+                $strout    .= $outPutCmd;
+
+                //重置当前子分支
+                $branchName = explode('/', $currentSubBranch);
+                $shell = "cd $gitRoot{$this->module->subGitPath} && git reset --hard {$currentSubBranch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
+                $outPutCmd = shell_exec($shell);
+                $strout    .= $outPutCmd;
+
+                //合并其它待测分支
                 foreach ((array)$mergeBranchs as $key => $mBranch) {
-                    $mBranch = str_replace('/', ' ', $mBranch);
-                    if ($mBranch == $branch) {
-                        unset($mergeBranchs[$key]);
-                        continue;
+                    list($mBranch,$mSubBranch) = explode('---[separator]---', $mBranch);
+
+                    if($currentBranch != $mBranch) {
+                        $mBranch = str_replace('/', ' ', $mBranch);
+                        $shell = "cd $gitRoot && git pull {$mBranch} 2>&1";
+                        $outPutCmd = shell_exec($shell);
+                        $strout    .= $outPutCmd;
                     }
-                    
-                    $shell = "cd $gitRoot && git pull {$mBranch} 2>&1";
-                    shell_exec($shell);
+
+                    if($currentSubBranch != $mSubBranch) {
+                        $mSubBranch = str_replace('/', ' ', $mSubBranch);
+                        $shell = "cd $gitRoot && git pull {$mSubBranch} 2>&1";
+                        $outPutCmd = shell_exec($shell);
+                        $strout    .= $outPutCmd;
+                    }
                 }
             } elseif ( ($currentBranch != $oriBranch && $oriBranch != $this->masterRemote.'/'.$this->masterBranch && !empty($oriBranch))
                 || (!empty($currentSubBranch) && $subBranch != $currentSubBranch && $subBranch != $oriBranch)) {
