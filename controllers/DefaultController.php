@@ -153,6 +153,9 @@ class DefaultController extends Controller
                 
                 //重置当前分支
                 $strout     .= "\n\n<span class='text-warning'>***************************************************************\n******     合并失败， 文件冲突，请解决冲突后再合并测试       ******\n***************************************************************\n</span>";
+
+                $strout    .= "\n\n<span class='text-warning'># 回滚分支</span> \n";
+
                 $branchName = explode('/', $currentBranch);
                 $branchName = $branchName[1] ?? $currentBranch;
                 $shell      = "cd $gitRoot && git reset --hard {$currentBranch} &&  git pull {$branchName[0]} {$branchName[1]} 2>&1";
