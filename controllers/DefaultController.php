@@ -22,6 +22,9 @@ class DefaultController extends Controller
     public $enableCsrfValidation = false;
     
     public function beforeAction($action) : bool {
+
+        Yii::$app->cache->keyPrefix .= '_'.Yii::$app->name
+
         $res = parent::beforeAction($action);
         if ($res === false) {
             return false;
@@ -154,7 +157,7 @@ class DefaultController extends Controller
                 $branchName = $branchName[1] ?? $currentBranch;
                 $shell      = "cd $gitRoot && git reset --hard {$currentBranch} &&  git pull {$branchName[0]} {$branchName[1]} 2>&1";
                 shell_exec($shell);
-                foreach ($mergeBranchs as $key => $mBranch) {
+                foreach ((array)$mergeBranchs as $key => $mBranch) {
                     $mBranch = str_replace('/', ' ', $mBranch);
                     if ($mBranch == $branch) {
                         unset($mergeBranchs[$key]);
