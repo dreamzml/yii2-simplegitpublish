@@ -156,22 +156,26 @@ class DefaultController extends Controller
                 $branchName = explode('/', $currentBranch);
                 $branchName = $branchName[1] ?? $currentBranch;
                 $shell      = "cd $gitRoot && git reset --hard {$currentBranch} &&  git pull {$branchName[0]} {$branchName[1]} 2>&1";
+                $strout    .= "<span class='text-warning'># {$shell}</span> \n";
                 $outPutCmd = shell_exec($shell);
                 $strout    .= $outPutCmd;
 
                 //重置当前子分支
                 $branchName = explode('/', $currentSubBranch);
                 $shell = "cd $gitRoot{$this->module->subGitPath} && git reset --hard {$currentSubBranch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
+                $strout    .= "<span class='text-warning'># {$shell}</span> \n";
                 $outPutCmd = shell_exec($shell);
                 $strout    .= $outPutCmd;
 
                 //合并其它待测分支
+                $mergeBranchs = is_array($mergeBranchs)? $mergeBranchs : [];
                 foreach ((array)$mergeBranchs as $key => $mBranch) {
                     list($mBranch,$mSubBranch) = explode('---[separator]---', $mBranch);
 
                     if($currentBranch != $mBranch) {
                         $mBranch = str_replace('/', ' ', $mBranch);
                         $shell = "cd $gitRoot && git pull {$mBranch} 2>&1";
+                        $strout    .= "<span class='text-warning'># {$shell}</span> \n";
                         $outPutCmd = shell_exec($shell);
                         $strout    .= $outPutCmd;
                     }
@@ -179,6 +183,7 @@ class DefaultController extends Controller
                     if($currentSubBranch != $mSubBranch) {
                         $mSubBranch = str_replace('/', ' ', $mSubBranch);
                         $shell = "cd $gitRoot && git pull {$mSubBranch} 2>&1";
+                        $strout    .= "<span class='text-warning'># {$shell}</span> \n";
                         $outPutCmd = shell_exec($shell);
                         $strout    .= $outPutCmd;
                     }
