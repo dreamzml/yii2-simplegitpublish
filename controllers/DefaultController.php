@@ -260,7 +260,7 @@ class DefaultController extends Controller
 
         if(!empty($this->module->subGitPath)) {
             $currentSubBranch = $this->getCurrentSubBranch();
-            $branchName = explode('/', $currentSubBranch);
+            $branchName = explode('/', $subBranch);
             $realBranch = $branchName[1];
             if ($currentSubBranch == $subBranch) {
                 //重置当前分支
