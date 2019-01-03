@@ -270,7 +270,7 @@ class DefaultController extends Controller
                 Yii::$app->cache->set('currentMasterRemote', $branchName[0]);
                 //删除已存在的本地分支
                 shell_exec(" cd $gitRoot{$this->module->subGitPath} &&  git branch -D {$realBranch} 2>&1");
-                $shell = "cd $gitRoot && git fetch --all && git checkout -b {$realBranch} {$branch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
+                $shell = "cd $gitRoot{$this->module->subGitPath} && git fetch --all && git checkout -b {$realBranch} {$branch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
             }
             $strout .= "<span class='text-warning'># {$shell}</span> \n";
             $strout .= shell_exec($shell);
