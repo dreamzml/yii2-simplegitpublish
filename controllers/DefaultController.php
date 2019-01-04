@@ -387,12 +387,23 @@ class DefaultController extends Controller
             $strout .= shell_exec($addCmd);
         }
 
-        $shell = "cd $gitRoot && git push $branch 2>&1";
+        //生产分支强制覆盖
+        if($this->module->masterAutoBase){
+            $shell = "cd $gitRoot && git push -f $branch 2>&1";
+        }else {
+            $shell = "cd $gitRoot && git push $branch 2>&1";
+        }
         $strout .= "\n<span class='text-warning'># {$shell}</span> \n";
         $strout .= shell_exec($shell);
 
         if(!empty($this->module->subGitPath)) {
-            $shell = "cd $gitRoot{$this->module->subGitPath} && git push $subBranch 2>&1";
+            //生产分支强制覆盖
+            if($this->module->masterAutoBase){
+                $shell = "cd $gitRoot{$this->module->subGitPath} && git push -f $subBranch 2>&1";
+            }else{
+                $shell = "cd $gitRoot{$this->module->subGitPath} && git push $subBranch 2>&1";
+            }
+
             $strout .= "\n<span class='text-warning'># {$shell}</span> \n";
             $strout .= shell_exec($shell);
         }

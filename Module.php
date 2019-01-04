@@ -23,6 +23,12 @@ class Module extends \yii\base\Module
     public $subMasterRemote = 'origin';
     public $subMasterBranch = 'master';
 
+
+    //合并到生产分支时自动将生产分支重置到
+    public $masterAutoBase = false;
+    public $baseRemoteBranch = null;
+    public $subBaseRemoteBranch = null;
+
     //编辑脚本相关
     public $nodeBasePath = '/wemall/web'; // node 脚本执行目录
     public $compilePath = '/wemall/web/jsg';//编译代码存放路径

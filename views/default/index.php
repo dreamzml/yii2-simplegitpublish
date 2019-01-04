@@ -14,6 +14,10 @@ use yii\helpers\Html;
 $this->title = Yii::$app->name."-". strtoupper(YII_ENV)."-git简易发布系统";
 
 
+$baseRemoteBranch = $this->module->masterAutoBase ? $this->module->baseRemoteBranch : "{$masterRemote}/{$masterBranch}";
+$subBaseRemoteBranch = $this->module->masterAutoBase ? $this->module->subBaseRemoteBranch : "{$subMasterBranch}/{$subMasterBranch}";
+
+
 $this->registerJs("
     //加载分支
     var loadBranch = function(){
@@ -171,6 +175,8 @@ $this->registerJs("
         currTestBranch:[],
         prodBranch:'{$masterRemote}/{$masterBranch}',
         prodSubBranch:'{$subMasterRemote}/{$subMasterBranch}',
+        baseBranch:'{$baseRemoteBranch}',
+        baseSubBranch:'{$subBaseRemoteBranch}',
         scrollTop: function(){
             \$('#result-box').scrollTop(\$('#result-box').prop(\"scrollHeight\"));
         },
@@ -206,7 +212,7 @@ $this->registerJs("
           \$.ajax({
             type: \"GET\",
             // async: false,
-            url: '".Url::to(["reset"])."?branch='+_this.prodBranch+'&subBranch='+_this.prodSubBranch,
+            url: '".Url::to(["reset"])."?branch='+_this.baseBranch+'&subBranch='+_this.baseSubBranch,
             beforeSend:function(){
               \$('#result-box').html('<div class=\"loading\"></div>');
             },
