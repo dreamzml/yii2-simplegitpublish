@@ -13,9 +13,9 @@ use yii\helpers\Html;
 
 $this->title = Yii::$app->name."-". strtoupper(YII_ENV)."-git简易发布系统";
 
-
-$baseRemoteBranch = $this->module->masterAutoBase ? $this->module->baseRemoteBranch : "{$masterRemote}/{$masterBranch}";
-$subBaseRemoteBranch = $this->module->masterAutoBase ? $this->module->subBaseRemoteBranch : "{$subMasterBranch}/{$subMasterBranch}";
+$module = Yii::$app->controller->module;
+$baseRemoteBranch = $module->masterAutoBase ? $module->baseRemoteBranch : "{$masterRemote}/{$masterBranch}";
+$subBaseRemoteBranch = $module->masterAutoBase ? $module->subBaseRemoteBranch : "{$subMasterBranch}/{$subMasterBranch}";
 
 
 $this->registerJs("
