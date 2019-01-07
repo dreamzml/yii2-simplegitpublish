@@ -70,6 +70,7 @@ $this->registerJs("
             success: function(result){
                 \$('#result-box').html(result);
                 \$('#curr-branch').html(branch);
+                \$('#curr-subBranch').html(subBranch);
                 loadBranch();
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
