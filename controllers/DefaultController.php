@@ -389,7 +389,10 @@ class DefaultController extends Controller
 
         //生产分支强制覆盖
         if($this->module->masterAutoBase){
-            $shell = "cd $gitRoot && git push -f $branch 2>&1";
+            list($remote, $branch) = explode(' ', $branch);
+            $baseBranch = trim(shell_exec(" cd $gitRoot && git symbolic-ref --short -q HEAD 2>&1"))
+
+            $shell = "cd $gitRoot && git push {$remote} {$baseBranch}:{$branch} -f 2>&1";
         }else {
             $shell = "cd $gitRoot && git push $branch 2>&1";
         }
@@ -399,7 +402,9 @@ class DefaultController extends Controller
         if(!empty($this->module->subGitPath)) {
             //生产分支强制覆盖
             if($this->module->masterAutoBase){
-                $shell = "cd $gitRoot{$this->module->subGitPath} && git push -f $subBranch 2>&1";
+                list($subRemote, $subBranch) = explode(' ', $subBranch);
+                $subBaseBranch = trim(shell_exec(" cd $gitRoot{$this->module->subGitPath} && git symbolic-ref --short -q HEAD 2>&1"));
+                $shell = "cd $gitRoot{$this->module->subGitPath} && git push -f $subRemote {$subBaseBranch}:{$subBranch} 2>&1";
             }else{
                 $shell = "cd $gitRoot{$this->module->subGitPath} && git push $subBranch 2>&1";
             }
