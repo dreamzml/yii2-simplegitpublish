@@ -480,7 +480,7 @@ class DefaultController extends Controller
         $gitRoot = self::getGitBootPath();
 
         //判断node是否在主项目
-        if(strpos($this->module->nodeBasePath,$this->module->subGitPath)===false){
+        if(!empty($this->module->subGitPath) && strpos($this->module->nodeBasePath,$this->module->subGitPath)===false){
             //node在子git项目
             $masterBranch = $this->module->subMasterRemote.'/'.$this->module->subMasterBranch;
         }else{
