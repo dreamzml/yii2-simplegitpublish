@@ -15,7 +15,7 @@ $this->title = Yii::$app->name."-". strtoupper(YII_ENV)."-git简易发布系统"
 
 $module = Yii::$app->controller->module;
 $baseRemoteBranch = $module->masterAutoBase ? $module->baseRemoteBranch : "{$masterRemote}/{$masterBranch}";
-$subBaseRemoteBranch = $module->masterAutoBase ? $module->subBaseRemoteBranch : "{$subMasterBranch}/{$subMasterBranch}";
+$subBaseRemoteBranch = $module->masterAutoBase ? $module->subBaseRemoteBranch : "{$subMasterRemote}/{$subMasterBranch}";
 
 
 $this->registerJs("
