@@ -23,6 +23,6 @@ class GitpublishAsset extends AssetBundle
         'yii\web\YiiAsset',
         'yii\bootstrap\BootstrapAsset',
         'yii\bootstrap\BootstrapPluginAsset',
-        'yii\gii\TypeAheadAsset',
+        'dreamzml\SimpleGitPublish\TypeAheadAsset',
     ];
 }
