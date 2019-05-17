@@ -4,7 +4,8 @@
     "type": "project",
     "require": {
         "yiisoft/yii2": "*",
-        "yiisoft/yii2-bootstrap": "*"
+        "yiisoft/yii2-bootstrap": "*",
+        "bower-asset/typeahead.js": "0.10.* | ~0.11.0"
     },
     "license": "MIT",
     "authors": [
