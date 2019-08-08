@@ -482,10 +482,10 @@ class DefaultController extends Controller
         //判断node是否在主项目
         if(!empty($this->module->subGitPath) && strpos($this->module->nodeBasePath,$this->module->subGitPath)===false){
             //node在子git项目
-            $masterBranch = $this->module->subMasterRemote.'/'.$this->module->subMasterBranch;
+            $masterBranch = $this->module->subBaseRemoteBranch;
         }else{
             //node在主git项目
-            $masterBranch = $this->masterRemote.'/'.$this->masterBranch;
+            $masterBranch = $this->module->baseRemoteBranch;
         }
 
         $commitIds = shell_exec("cd $gitRoot{$this->module->nodeBasePath} && git cherry -v $masterBranch 2>&1");
