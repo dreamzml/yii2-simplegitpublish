@@ -250,13 +250,7 @@ class DefaultController extends Controller
         }else{
             //设置当前的remote
             Yii::$app->cache->set('currentMasterRemote', $branchName[0]);
-            //删除已存在的本地分支
-            if ($this->existsBranch($gitRoot, $realBranch)){
-                $delCmd =  "&& git clean -fd &&  git branch -D {$realBranch}";
-            }else{
-                $delCmd = "";
-            }
-            $shell = "cd $gitRoot $delCmd && git fetch --all && git checkout -b {$realBranch} {$branch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
+            $shell = "cd $gitRoot && git clean -fd && git fetch --all && git checkout -B {$realBranch} {$branch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
         }
 
         $strout = "<span class='text-warning'># {$shell}</span> \n";
@@ -272,15 +266,7 @@ class DefaultController extends Controller
             } else {
                 //设置当前的remote
                 Yii::$app->cache->set('currentMasterRemote', $branchName[0]);
-                //删除已存在的本地分支
-
-                //删除已存在的本地分支
-                if ($this->existsBranch("$gitRoot{$this->module->subGitPath}", $realBranch)){
-                    $delCmd =  "&& git clean -fd &&  git branch -D {$realBranch}";
-                }else{
-                    $delCmd = "";
-                }
-                $shell = "cd $gitRoot{$this->module->subGitPath} $delCmd && git fetch --all && git checkout -b {$realBranch} {$subBranch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
+                $shell = "cd $gitRoot{$this->module->subGitPath} && git clean -fd && git fetch --all && git checkout -B {$realBranch} {$subBranch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
             }
             $strout .= "<span class='text-warning'># {$shell}</span> \n";
             $strout .= shell_exec($shell);
@@ -479,27 +465,6 @@ class DefaultController extends Controller
         $masterRemote = empty($masterRemote)? $this->module->subMasterRemote : $masterRemote;
 
         return  $masterRemote.'/'.trim(shell_exec(" cd $gitRoot{$this->module->subGitPath} && git symbolic-ref --short -q HEAD 2>&1"));
-    }
-
-
-    /**
-     * 检察分支是否存在
-     * @param $baseDir
-     * @param $checkBranch
-     *
-     * @return bool
-     */
-    protected function existsBranch($baseDir, $checkBranch)
-    {
-        $branchs      = shell_exec(" cd $baseDir && git branch 2>&1");
-        $branchs      = explode("\n", rtrim($branchs));
-        $subRemoteBranch = [];
-        foreach ($branchs as $branch) {
-            if ($branch == $checkBranch){
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
