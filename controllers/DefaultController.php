@@ -246,13 +246,13 @@ class DefaultController extends Controller
         $realBranch = $branchName[1];
         if($currentBranch == $branch){
             //重置当前分支
-            $shell = "cd $gitRoot && git reset --hard {$branch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
+            $shell = "cd $gitRoot && git clean -fd && git reset --hard {$branch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
         }else{
             //设置当前的remote
             Yii::$app->cache->set('currentMasterRemote', $branchName[0]);
             //删除已存在的本地分支
             if ($this->existsBranch($gitRoot, $realBranch)){
-                $delCmd =  "&& rm -rf $gitRoot{$this->module->compilePath}/* && git reset --hard {$currentBranch}  &&  git branch -D {$realBranch}";
+                $delCmd =  "&& git clean -fd &&  git branch -D {$realBranch}";
             }else{
                 $delCmd = "";
             }
@@ -268,7 +268,7 @@ class DefaultController extends Controller
             $realBranch = $branchName[1];
             if ($currentSubBranch == $subBranch) {
                 //重置当前分支
-                $shell = "cd $gitRoot{$this->module->subGitPath} && git reset --hard {$branch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
+                $shell = "cd $gitRoot{$this->module->subGitPath} && git clean -fd && git reset --hard {$branch} && git pull {$branchName[0]} {$branchName[1]} 2>&1";
             } else {
                 //设置当前的remote
                 Yii::$app->cache->set('currentMasterRemote', $branchName[0]);
@@ -276,7 +276,7 @@ class DefaultController extends Controller
 
                 //删除已存在的本地分支
                 if ($this->existsBranch("$gitRoot{$this->module->subGitPath}", $realBranch)){
-                    $delCmd =  "&& rm -rf $gitRoot{$this->module->compilePath}/* && git reset --hard {$currentSubBranch}  &&  git branch -D {$realBranch}";
+                    $delCmd =  "&& git clean -fd &&  git branch -D {$realBranch}";
                 }else{
                     $delCmd = "";
                 }
