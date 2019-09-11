@@ -275,7 +275,7 @@ class DefaultController extends Controller
                 //删除已存在的本地分支
 
                 //删除已存在的本地分支
-                if ($this->existsBranch($gitRoot{$this->module->subGitPath} , $realBranch)){
+                if ($this->existsBranch("$gitRoot{$this->module->subGitPath}", $realBranch)){
                     $delCmd =  "&& rm -rf $gitRoot{$this->module->compilePath}/* && git reset --hard {$currentSubBranch}  &&  git branch -D {$realBranch}";
                 }else{
                     $delCmd = "";
