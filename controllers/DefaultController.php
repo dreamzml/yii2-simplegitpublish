@@ -491,7 +491,7 @@ class DefaultController extends Controller
      */
     protected function existsBranch($baseDir, $checkBranch)
     {
-        $branchs      = shell_exec(" cd $path && git branch 2>&1");
+        $branchs      = shell_exec(" cd $baseDir && git branch 2>&1");
         $branchs      = explode("\n", rtrim($branchs));
         $subRemoteBranch = [];
         foreach ($branchs as $branch) {
