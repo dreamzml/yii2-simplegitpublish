@@ -15,8 +15,8 @@ class DefaultController extends Controller
     public $isMaster = false;
 
     //主分支仓库
-    public $masterRemote = 'awsGitlab';
-    public $masterBranch = 'yimi_wechatmall';
+    public $masterRemote = 'origin';
+    public $masterBranch = 'master';
 
     //跳出CsrfToken验证
     public $enableCsrfValidation = false;
